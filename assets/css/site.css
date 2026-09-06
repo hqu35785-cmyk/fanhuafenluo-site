@@ -1,0 +1,2662 @@
+:root{
+  --bg:#08090d;
+  --panel:#11131a;
+  --text:#f7f3f6;
+  --soft:#cec7d1;
+  --muted:#8f8997;
+  --pink:#e8b6c7;
+  --blue:#a9bbd9;
+  --violet:#c8b9df;
+  --line:rgba(255,255,255,.085);
+  --role-media-focus-x:50%;
+  --role-media-focus-y:8%;
+  --serif:"Songti SC","STSong","Noto Serif CJK SC",serif;
+  --sans:Inter,ui-sans-serif,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);color-scheme:dark}
+body{
+  margin:0;min-height:100vh;color:var(--text);font-family:var(--sans);
+  background:
+    radial-gradient(720px 380px at 4% -8%,rgba(232,182,199,.08),transparent 62%),
+    radial-gradient(680px 360px at 100% 2%,rgba(169,187,217,.065),transparent 64%),
+    linear-gradient(180deg,#0b0c11,#08090d 48%,#07080b);
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.17;
+  background-image:
+    linear-gradient(to bottom,rgba(8,9,13,0) 0%,rgba(8,9,13,0) 70%,rgba(8,9,13,1) 88%),
+    linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);
+  background-size:100% 100%,78px 78px,78px 78px;
+}
+button{font:inherit}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+.site-header{
+  height:86px;display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.065);
+  background:
+    radial-gradient(220px 90px at 0 0,rgba(232,182,199,.06),transparent 70%),
+    linear-gradient(180deg,rgba(15,15,22,.99),rgba(9,10,14,.985));
+}
+.wrap{width:calc(100% - 40px);margin:auto}
+.archive-main{
+  width:min(3300px,calc(100% - clamp(12px,2.4vw,42px)));
+  margin-inline:auto;
+}
+.toolbar{
+  min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  border-bottom:1px solid rgba(255,255,255,.055);
+}
+.filters{display:flex;align-items:center;gap:20px;min-width:0;overflow:hidden}
+.filter{
+  position:relative;padding:16px 0 14px;color:rgba(206,199,209,.36);
+  font-size:7px;font-weight:650;letter-spacing:.14em;white-space:nowrap;
+}
+.filter.active{color:rgba(247,243,246,.82)}
+.filter.active::after{
+  content:"";position:absolute;left:0;right:0;bottom:8px;height:1px;
+  background:linear-gradient(90deg,var(--pink),rgba(169,187,217,.52));
+}
+.toolbar-status{display:flex;align-items:center;gap:7px;color:rgba(206,199,209,.32);font-size:7px;letter-spacing:.12em;white-space:nowrap}
+.toolbar-status i{width:5px;height:5px;border-radius:50%;border:1px solid rgba(232,182,199,.55)}
+.toolbar-status.is-error span{font-size:11px;letter-spacing:.06em;color:#f1b4bd}
+.status-retry{
+  min-height:26px;padding:0 10px;border:1px solid rgba(241,180,189,.42);border-radius:999px;
+  color:#f1b4bd;background:rgba(241,180,189,.08);font-size:10px;cursor:pointer;
+}
+
+.gallery{
+  padding:16px 0 34px;display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  column-gap:clamp(10px,.72vw,14px);
+  row-gap:clamp(18px,2vh,26px);
+}
+.gallery.is-empty{
+  align-items:stretch;
+}
+.archive-empty{
+  position:relative;
+  grid-column:1/-1;
+  min-height:clamp(330px,62vh,680px);
+  display:grid;
+  grid-template-columns:88px minmax(0,430px);
+  place-content:center;
+  align-items:center;
+  gap:clamp(24px,4vw,54px);
+  padding:clamp(52px,9vw,110px) clamp(24px,8vw,120px);
+  overflow:hidden;
+  isolation:isolate;
+  border:1px solid rgba(255,255,255,.055);
+  border-radius:clamp(20px,2.2vw,32px);
+  background:
+    radial-gradient(circle at 31% 47%,rgba(232,182,199,.075),transparent 25%),
+    radial-gradient(circle at 68% 52%,rgba(169,187,217,.055),transparent 31%),
+    linear-gradient(145deg,rgba(19,20,27,.86),rgba(10,11,16,.72));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    0 28px 80px rgba(0,0,0,.15);
+  animation:archiveEmptyArrive 620ms cubic-bezier(.16,1,.3,1) both;
+}
+.archive-empty[hidden]{display:none!important}
+.archive-empty::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  width:min(66vw,760px);
+  aspect-ratio:1;
+  left:50%;
+  top:50%;
+  translate:-50% -50%;
+  border:1px solid rgba(255,255,255,.024);
+  border-radius:50%;
+  box-shadow:
+    0 0 0 72px rgba(255,255,255,.009),
+    0 0 0 144px rgba(255,255,255,.006);
+}
+.archive-empty::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:14px;
+  border:1px solid rgba(255,255,255,.025);
+  border-radius:calc(clamp(20px,2.2vw,32px) - 8px);
+  pointer-events:none;
+}
+.archive-empty-index{
+  position:absolute;
+  top:clamp(24px,3vw,38px);
+  right:clamp(26px,3.4vw,48px);
+  color:rgba(247,243,246,.09);
+  font-family:var(--serif);
+  font-size:clamp(28px,4vw,58px);
+  font-weight:500;
+  letter-spacing:.04em;
+}
+.archive-empty-mark{
+  position:relative;
+  width:88px;
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(232,182,199,.2);
+  border-radius:50%;
+  background:
+    radial-gradient(circle,rgba(232,182,199,.10),transparent 62%),
+    rgba(255,255,255,.012);
+  box-shadow:
+    inset 0 0 28px rgba(169,187,217,.04),
+    0 0 44px rgba(232,182,199,.04);
+}
+.archive-empty-mark::before,
+.archive-empty-mark::after{
+  content:"";
+  position:absolute;
+  background:linear-gradient(90deg,transparent,rgba(232,182,199,.34),transparent);
+}
+.archive-empty-mark::before{width:122px;height:1px}
+.archive-empty-mark::after{width:1px;height:122px;background:linear-gradient(transparent,rgba(169,187,217,.28),transparent)}
+.archive-empty-mark i{
+  width:10px;
+  height:10px;
+  border:1px solid rgba(247,243,246,.42);
+  border-radius:50%;
+  box-shadow:0 0 18px rgba(232,182,199,.18);
+}
+.archive-empty-copy{min-width:0}
+.archive-empty-copy small{
+  display:block;
+  margin-bottom:13px;
+  color:rgba(169,187,217,.45);
+  font-size:8px;
+  font-weight:650;
+  letter-spacing:.19em;
+}
+.archive-empty-copy h2{
+  margin:0;
+  color:rgba(247,243,246,.94);
+  font-family:var(--serif);
+  font-size:clamp(30px,4.2vw,56px);
+  font-weight:500;
+  letter-spacing:.08em;
+  line-height:1.15;
+}
+.archive-empty-copy p{
+  max-width:36em;
+  margin:18px 0 0;
+  color:rgba(206,199,209,.48);
+  font-family:var(--serif);
+  font-size:clamp(11px,1.1vw,14px);
+  letter-spacing:.055em;
+  line-height:1.8;
+}
+@keyframes archiveEmptyArrive{
+  from{opacity:0;transform:translateY(10px);filter:blur(3px)}
+  to{opacity:1;transform:none;filter:none}
+}
+.archive-card{min-width:0;perspective:760px}
+.card-face{
+  position:relative;aspect-ratio:.72;overflow:hidden;
+  border:1px solid rgba(255,255,255,.072);border-radius:16px;
+  background:
+    radial-gradient(circle at 73% 14%,rgba(169,187,217,.055),transparent 28%),
+    radial-gradient(circle at 16% 88%,rgba(232,182,199,.045),transparent 30%),
+    linear-gradient(148deg,#14151b 0%,#0d0f14 58%,#090a0e 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.032),0 12px 28px rgba(0,0,0,.16);
+}
+
+/* Loaded art lives under exactly the same overlay/chrome. */
+.loaded-art{
+  position:absolute;inset:0;opacity:0;transform:scale(1.015);
+  transition:opacity .46s ease,transform .62s cubic-bezier(.2,.75,.2,1);
+}
+
+.loaded-art::before{
+  content:"";position:absolute;inset:0;
+  background:
+    linear-gradient(180deg,rgba(7,8,12,.04),rgba(7,8,12,.10) 58%,rgba(7,8,12,.30)),
+    radial-gradient(circle at 52% 25%,rgba(255,255,255,.07),transparent 24%);
+}
+.theme-0 .loaded-art{background:linear-gradient(150deg,#271d28,#131620 52%,#0c0e13)}
+.theme-1 .loaded-art{background:linear-gradient(145deg,#16202d,#15131b 55%,#0a0c11)}
+.theme-2 .loaded-art{background:linear-gradient(155deg,#241b24,#171521 48%,#0b0d12)}
+.theme-3 .loaded-art{background:linear-gradient(150deg,#14202a,#18151c 50%,#0b0c11)}
+.theme-4 .loaded-art{background:linear-gradient(155deg,#211b2b,#121820 54%,#090b10)}
+.theme-5 .loaded-art{background:linear-gradient(145deg,#241d22,#12151d 50%,#0b0c10)}
+
+/* Same diagonal texture in both states; it becomes a subtle overlay after load. */
+.stripe-field{
+  position:absolute;inset:-25%;z-index:4;
+  transform:rotate(-17deg);transform-origin:center;opacity:.80;
+  transition:opacity .36s ease;
+}
+.pattern-1 .stripe-field{
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22840%22%20height%3D%221%22%20viewBox%3D%220%200%20840%201%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22f%22%20width%3D%2215%22%20height%3D%221%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Crect%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%22.035%22%2F%3E%3C%2Fpattern%3E%3Cpattern%20id%3D%22w%22%20width%3D%22168%22%20height%3D%221%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Crect%20x%3D%2272%22%20width%3D%2224%22%20height%3D%221%22%20fill%3D%22%23e8b6c7%22%20fill-opacity%3D%22.045%22%2F%3E%3C%2Fpattern%3E%3C%2Fdefs%3E%3Crect%20width%3D%22840%22%20height%3D%221%22%20fill%3D%22url(%23w)%22%2F%3E%3Crect%20width%3D%22840%22%20height%3D%221%22%20fill%3D%22url(%23f)%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat:repeat;
+  background-size:840px 100%;
+}
+.pattern-2 .stripe-field{
+  transform:rotate(-24deg);opacity:.72;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221638%22%20height%3D%221%22%20viewBox%3D%220%200%201638%201%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22f%22%20width%3D%2213%22%20height%3D%221%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Crect%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23a9bbd9%22%20fill-opacity%3D%22.038%22%2F%3E%3C%2Fpattern%3E%3Cpattern%20id%3D%22w%22%20width%3D%22126%22%20height%3D%221%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Crect%20x%3D%2250%22%20width%3D%2224%22%20height%3D%221%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%22.025%22%2F%3E%3C%2Fpattern%3E%3C%2Fdefs%3E%3Crect%20width%3D%221638%22%20height%3D%221%22%20fill%3D%22url(%23w)%22%2F%3E%3Crect%20width%3D%221638%22%20height%3D%221%22%20fill%3D%22url(%23f)%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat:repeat;
+  background-size:1638px 100%;
+}
+.pattern-3 .stripe-field{
+  transform:rotate(-13deg);opacity:.75;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221710%22%20height%3D%221%22%20viewBox%3D%220%200%201710%201%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22f%22%20width%3D%2218%22%20height%3D%221%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Crect%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%22.03%22%2F%3E%3C%2Fpattern%3E%3Cpattern%20id%3D%22w%22%20width%3D%22190%22%20height%3D%221%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Crect%20x%3D%2288%22%20width%3D%2229%22%20height%3D%221%22%20fill%3D%22%23e8b6c7%22%20fill-opacity%3D%22.035%22%2F%3E%3C%2Fpattern%3E%3C%2Fdefs%3E%3Crect%20width%3D%221710%22%20height%3D%221%22%20fill%3D%22url(%23w)%22%2F%3E%3Crect%20width%3D%221710%22%20height%3D%221%22%20fill%3D%22url(%23f)%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat:repeat;
+  background-size:1710px 100%;
+}
+.pattern-4 .stripe-field{
+  transform:rotate(-21deg);opacity:.72;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221584%22%20height%3D%221%22%20viewBox%3D%220%200%201584%201%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22f%22%20width%3D%2211%22%20height%3D%221%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Crect%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23a9bbd9%22%20fill-opacity%3D%22.03%22%2F%3E%3C%2Fpattern%3E%3Cpattern%20id%3D%22w%22%20width%3D%22144%22%20height%3D%221%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Crect%20x%3D%2264%22%20width%3D%2222%22%20height%3D%221%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%22.024%22%2F%3E%3C%2Fpattern%3E%3C%2Fdefs%3E%3Crect%20width%3D%221584%22%20height%3D%221%22%20fill%3D%22url(%23w)%22%2F%3E%3Crect%20width%3D%221584%22%20height%3D%221%22%20fill%3D%22url(%23f)%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat:repeat;
+  background-size:1584px 100%;
+}
+.ghost-frame{
+  position:absolute;z-index:6;inset:11px;
+  border:1px solid rgba(255,255,255,.032);border-radius:12px;
+  transition:border-color .36s ease;
+}
+.ghost-frame::before{
+  content:"";position:absolute;left:50%;top:14%;bottom:14%;width:1px;
+  background:linear-gradient(transparent,rgba(255,255,255,.035),transparent);
+  transition:opacity .36s ease;
+}
+.ghost-frame::after{
+  content:"";position:absolute;top:50%;left:14%;right:14%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.03),transparent);
+  transition:opacity .36s ease;
+}
+.corner-code{
+  position:absolute;z-index:10;top:10px;left:10px;
+  max-width:calc(100% - 52px);height:25px;
+  display:flex;align-items:center;gap:6px;padding:0 8px;
+  border:1px solid rgba(255,255,255,.085);border-radius:999px;
+  color:rgba(247,243,246,.52);background:rgba(7,8,12,.28);
+  backdrop-filter:blur(6px);
+  font-size:6.5px;font-weight:650;letter-spacing:.08em;
+}
+.corner-dot{
+  width:4px;height:4px;border-radius:50%;
+  background:rgba(232,182,199,.64);box-shadow:0 0 8px rgba(232,182,199,.22);
+}
+.corner-label{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.corner-index{
+  position:absolute;z-index:10;top:15px;right:12px;
+  color:rgba(247,243,246,.22);font-size:6.5px;letter-spacing:.12em;
+}
+.loading-core{
+  position:absolute;z-index:8;left:12px;right:12px;bottom:61px;
+  display:grid;gap:4px;transition:opacity .34s ease,transform .34s ease;
+}
+.loading-title{font-size:6px;font-weight:650;letter-spacing:.16em;color:rgba(247,243,246,.26)}
+.loading-line{
+  width:52%;height:1px;
+  background:linear-gradient(90deg,rgba(232,182,199,.35),rgba(169,187,217,.10),transparent);
+}
+.loading-sub{font-size:5.5px;letter-spacing:.1em;color:rgba(206,199,209,.18)}
+.state-label{
+  display:grid;
+  gap:4px;
+  transition:opacity .28s ease,transform .28s ease;
+}
+.state-label-ready{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transform:translateY(3px);
+  pointer-events:none;
+}
+footer{
+  padding:18px 0 22px;border-top:1px solid rgba(255,255,255,.05);
+  color:rgba(206,199,209,.26);font-size:7px;letter-spacing:.13em;
+}
+footer .wrap{display:flex;justify-content:space-between;gap:12px}
+
+
+@media(max-width:1550px){
+  .gallery{grid-template-columns:repeat(6,minmax(0,1fr))}
+}
+@media(max-width:1320px){
+  .gallery{grid-template-columns:repeat(5,minmax(0,1fr))}
+}
+@media(max-width:1080px){
+  .gallery{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .gallery{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:620px){
+  .gallery{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:10px;
+    row-gap:10px;
+  }
+  .archive-empty{
+    min-height:calc(100svh - 210px);
+    grid-template-columns:1fr;
+    justify-items:center;
+    gap:30px;
+    padding:58px 24px 64px;
+    text-align:center;
+  }
+  .archive-empty-mark{width:74px}
+  .archive-empty-mark::before{width:104px}
+  .archive-empty-mark::after{height:104px}
+  .archive-empty-copy p{margin-top:14px}
+}
+@media(min-width:500px) and (max-width:620px) and (orientation:portrait){
+  .gallery{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(prefers-reduced-motion:reduce){
+  *{transition:none!important}
+  .archive-empty{animation:none!important}
+}
+
+/* Bottom interaction area:
+   unloaded = empty frame; loaded = primary details + secondary download. */
+.bottom-frame button{
+  min-width:0;
+  margin:0;
+  border:0;
+  color:inherit;
+  background:transparent;
+  font:inherit;
+}
+
+/* Loaded: the former empty zone resolves into two controls. */
+.detail-action,
+.download-action{
+  position:relative;
+  height:100%;
+  border:1px solid rgba(255,255,255,.085)!important;
+  border-radius:10px;
+  background:linear-gradient(180deg,rgba(10,11,16,.46),rgba(7,8,12,.68))!important;
+  -webkit-backdrop-filter:blur(7px);
+  backdrop-filter:blur(7px);
+}
+.detail-action{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:7px 9px 7px 10px!important;
+  text-align:left;
+  border-color:rgba(232,182,199,.15)!important;
+}
+.action-copy{
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+.action-copy b{
+  font-family:var(--serif);
+  color:rgba(255,251,253,.90);
+  font-size:9px;
+  font-weight:600;
+  letter-spacing:.075em;
+  white-space:nowrap;
+}
+.action-copy small{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:rgba(206,199,209,.37);
+  font-size:4.8px;
+  letter-spacing:.095em;
+}
+.action-arrow{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  width:19px;
+  height:19px;
+  border-radius:50%;
+  border:1px solid rgba(232,182,199,.14);
+  color:rgba(247,243,246,.63);
+  background:rgba(232,182,199,.035);
+  font-size:8px;
+}
+/* Bottom action geometry: one primary archive box with a separate download control. */
+.bottom-frame{
+  position:absolute!important;
+  z-index:10;
+  left:9px!important;
+  right:9px!important;
+  bottom:9px!important;
+  min-height:43px!important;
+  display:block!important;
+  padding:0!important;
+  border:1px solid rgba(255,255,255,.06)!important;
+  border-radius:10px!important;
+  background:linear-gradient(180deg,rgba(7,8,12,.12),rgba(7,8,12,.20))!important;
+  overflow:visible!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  transition:border-color .36s ease,background .36s ease;
+}
+
+/* While unloaded, only the empty frame remains. */
+.archive-card:not(.is-loaded) .bottom-frame .detail-action,
+.archive-card:not(.is-loaded) .bottom-frame .download-action{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+.archive-card:not(.is-loaded) .bottom-frame{
+  border-color:rgba(255,255,255,.06)!important;
+  background:linear-gradient(180deg,rgba(7,8,12,.10),rgba(7,8,12,.18))!important;
+}
+
+/* Loaded: the same outer frame becomes the primary action. */
+.archive-card.is-loaded .bottom-frame{
+  border-color:rgba(232,182,199,.15)!important;
+  background:linear-gradient(180deg,rgba(10,11,16,.46),rgba(7,8,12,.68))!important;
+  -webkit-backdrop-filter:blur(7px)!important;
+  backdrop-filter:blur(7px)!important;
+}
+.detail-action{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  padding:7px 10px!important;
+  border:0!important;
+  border-radius:inherit!important;
+  background:transparent!important;
+  text-align:left!important;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .28s ease;
+}
+.archive-card.is-loaded .detail-action{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+.download-action{
+  position:absolute!important;
+  z-index:4!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  color:rgba(247,243,246,.54)!important;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(3px);
+  transition:opacity .28s ease,transform .28s ease,border-color .2s ease;
+}
+.archive-card.is-loaded .download-action{
+  opacity:1;
+  visibility:visible;
+  transform:none;
+  pointer-events:auto;
+}
+.download-icon{
+  width:18px!important;
+  height:18px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:0!important;
+  border-radius:0!important;
+  font-size:9px!important;
+  color:rgba(247,243,246,.55)!important;
+}
+.archive-card.is-loaded .download-action:hover{
+  border-color:rgba(169,187,217,.16)!important;
+  color:rgba(247,243,246,.78)!important;
+}
+/* Loading/loaded visuals now belong to each card, not body-global state. */
+.archive-card .loaded-art{
+  opacity:0;
+  transform:scale(1.015);
+}
+.archive-card.is-loaded .loaded-art{
+  opacity:1;
+  transform:scale(1);
+}
+.archive-card.is-loaded .stripe-field{
+  opacity:.22;
+}
+.archive-card.is-loaded.pattern-2 .stripe-field,
+.archive-card.is-loaded.pattern-3 .stripe-field,
+.archive-card.is-loaded.pattern-4 .stripe-field{
+  opacity:.18;
+}
+.archive-card.is-loaded .ghost-frame{
+  border-color:rgba(255,255,255,.05);
+}
+.archive-card.is-loaded .ghost-frame::before,
+.archive-card.is-loaded .ghost-frame::after{
+  opacity:.32;
+}
+.archive-card.is-loaded .corner-code{
+  color:#f7d9e4!important;
+  border-color:rgba(245,210,226,.42)!important;
+  background:
+    linear-gradient(135deg,
+      rgba(232,182,199,.20) 0%,
+      rgba(200,185,223,.16) 52%,
+      rgba(169,187,217,.13) 100%),
+    rgba(7,8,12,.52)!important;
+  text-shadow:0 1px 3px rgba(4,5,9,.6)!important;
+}
+.archive-card.is-loaded .corner-index{
+  color:rgba(247,243,246,.46);
+}
+.archive-card.is-loaded .state-label-loading{
+  opacity:0;
+  transform:translateY(-3px);
+  pointer-events:none;
+}
+.archive-card.is-loaded .state-label-ready{
+  opacity:1;
+  transform:none;
+}
+/* Separate download control: not inside or touching the archive box visually. */
+.download-action{
+  right:0!important;
+  top:-39px!important;
+  width:31px!important;
+  height:31px!important;
+  border-radius:8px!important;
+  border:1px solid rgba(255,255,255,.085)!important;
+  background:linear-gradient(180deg,rgba(16,17,23,.95),rgba(8,9,13,.98))!important;
+  box-shadow:0 7px 18px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.045)!important;
+}
+
+/* Readable loaded metadata: stack both states in one grid cell so the
+   ready copy grows the loading core instead of covering the action frame. */
+.loading-core{
+  display:grid;
+  grid-template-areas:"stack";
+}
+.loading-core > .state-label{
+  grid-area:stack;
+  align-self:end;
+  align-content:end;
+}
+.state-label-ready{
+  position:static;
+  inset:auto;
+}
+.state-label{
+  gap:6px!important;
+}
+.state-label-ready .ready-name{
+  font-family:var(--serif)!important;
+  font-size:15px!important;
+  font-weight:600!important;
+  letter-spacing:.06em!important;
+  line-height:1.15!important;
+  color:rgba(255,251,253,.88)!important;
+  text-transform:none;
+  font-variant-numeric:normal!important;
+}
+.archive-card.is-loaded .state-label-ready .loading-line{
+  width:30%!important;
+  height:2px!important;
+  border-radius:2px!important;
+}
+.state-label-ready .ready-meta{
+  font-family:var(--sans)!important;
+  font-size:9px!important;
+  font-weight:650!important;
+  letter-spacing:.10em!important;
+  color:rgba(206,199,209,.43)!important;
+  font-variant-numeric:tabular-nums!important;
+}
+.archive-card.is-loaded .loading-core::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:-12px;
+  right:-12px;
+  top:-16px;
+  bottom:-61px;
+  pointer-events:none;
+  background:linear-gradient(to top,
+    rgba(6,7,11,.80) 0%,
+    rgba(6,7,11,.64) 32%,
+    rgba(6,7,11,.30) 66%,
+    transparent 100%);
+}
+.archive-card.is-loaded .state-label-ready .ready-name{
+  color:#f7d9e4!important;
+  text-shadow:0 1px 3px rgba(4,5,9,.65)!important;
+}
+.archive-card.is-loaded .state-label-ready .loading-line{
+  background:linear-gradient(90deg,
+    var(--pink),
+    var(--violet) 55%,
+    transparent)!important;
+  box-shadow:0 0 6px rgba(232,182,199,.28)!important;
+}
+.archive-card.is-loaded .state-label-ready .ready-meta{
+  color:rgba(169,187,217,.92)!important;
+  text-shadow:0 1px 3px rgba(4,5,9,.6)!important;
+}
+.state-label-ready.no-created .loading-line,
+.state-label-ready.no-created .ready-meta{
+  display:none;
+}
+@media(max-width:620px){
+  .state-label-ready .ready-name{font-size:13px!important}
+  .state-label-ready .ready-meta{font-size:8px!important}
+}
+@media(max-width:620px){
+  .card-face{border-radius:14px}
+  .ghost-frame{inset:8px;border-radius:10px}
+
+  .corner-code{
+    top:8px;left:8px;
+    height:23px;padding:0 7px;
+    font-size:5.8px;
+  }
+  .corner-index{
+    top:13px;right:9px;
+    font-size:5.8px;
+  }
+  .loading-core{
+    left:10px;right:10px;bottom:55px;
+  }
+  .loading-title{font-size:5.6px}
+  .loading-sub{font-size:5px}
+  .bottom-frame{
+    left:7px;right:7px;bottom:7px;
+    min-height:39px;
+  }
+}
+/* =========================
+   Archive detail modal
+   ========================= */
+.archive-modal,
+.save-sheet{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:none;
+}
+.archive-modal.is-open,
+.save-sheet.is-open{
+  display:block;
+}
+.archive-modal-backdrop,
+.save-sheet-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(4,5,8,.76);
+  -webkit-backdrop-filter:blur(10px);
+  backdrop-filter:blur(10px);
+}
+.archive-modal-panel{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:min(1040px,calc(100% - 34px));
+  max-height:min(86vh,820px);
+  transform:translate(-50%,-50%);
+  display:grid;
+  grid-template-columns:minmax(310px,.82fr) minmax(0,1.18fr);
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:22px;
+  background:
+    radial-gradient(500px 240px at 0 0,rgba(232,182,199,.07),transparent 65%),
+    linear-gradient(160deg,#111219,#090a0f 72%);
+  box-shadow:0 30px 90px rgba(0,0,0,.52);
+}
+.archive-modal-close{
+  position:absolute;
+  right:14px;
+  top:14px;
+  z-index:8;
+  width:34px;
+  height:34px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:50%;
+  color:rgba(255,255,255,.72);
+  background:rgba(7,8,12,.58);
+  font-size:17px;
+  cursor:pointer;
+}
+.archive-detail-visual{
+  position:relative;
+  min-height:580px;
+  overflow:hidden;
+  border-right:1px solid rgba(255,255,255,.07);
+  background:
+    radial-gradient(circle at 42% 26%,rgba(232,182,199,.14),transparent 22%),
+    radial-gradient(circle at 62% 67%,rgba(169,187,217,.12),transparent 28%),
+    linear-gradient(150deg,#1a171e,#10131b 56%,#090a0f);
+}
+.detail-art{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+}
+.detail-art::before{
+  content:"";
+  position:absolute;
+  inset:-30%;
+  transform:rotate(-18deg);
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.026) 0 1px,transparent 1px 18px),
+    repeating-linear-gradient(90deg,transparent 0 92px,rgba(232,182,199,.035) 92px 126px,transparent 126px 206px);
+}
+.detail-visual-top{
+  position:absolute;
+  left:16px;
+  right:16px;
+  top:16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.detail-visual-top span,
+.detail-visual-top small{
+  padding:8px 10px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:999px;
+  background:rgba(7,8,12,.38);
+  color:rgba(255,255,255,.76);
+  font-size:8px;
+  letter-spacing:.09em;
+}
+.detail-visual-top small{
+  color:rgba(255,255,255,.42);
+}
+.detail-visual-bottom{
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 10px 10px 12px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+  background:rgba(7,8,12,.50);
+  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
+}
+.detail-visual-bottom>span{
+  color:rgba(255,255,255,.43);
+  font-size:7px;
+  letter-spacing:.14em;
+}
+.detail-save-btn{
+  min-height:34px;
+  padding:0 12px;
+  border:1px solid rgba(232,182,199,.18);
+  border-radius:9px;
+  color:rgba(255,255,255,.86);
+  background:linear-gradient(135deg,rgba(232,182,199,.11),rgba(169,187,217,.055));
+  font-size:8px;
+  font-weight:650;
+  letter-spacing:.08em;
+  cursor:pointer;
+}
+
+.archive-detail-content{
+  min-width:0;
+  overflow:auto;
+  padding:54px 34px 30px;
+}
+.detail-heading{
+  margin-top:0;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+}
+.detail-heading h2{
+  margin:0;
+  font-family:var(--serif);
+  font-size:34px;
+  font-weight:600;
+  letter-spacing:.07em;
+}
+.detail-heading p{
+  margin:8px 0 0;
+  color:rgba(206,199,209,.40);
+  font-size:7px;
+  letter-spacing:.12em;
+}
+.detail-tavo-badge{
+  flex:0 0 auto;
+  padding:7px 9px;
+  border:1px solid rgba(169,187,217,.15);
+  border-radius:8px;
+  color:rgba(216,228,246,.68);
+  background:rgba(169,187,217,.045);
+  font-size:7px;
+  letter-spacing:.14em;
+}
+
+/* =========================
+   Original PNG save sheet
+   ========================= */
+.save-sheet{
+  z-index:1200;
+}
+.save-sheet-panel{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:min(430px,calc(100% - 30px));
+  transform:translate(-50%,-50%);
+  padding:18px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:20px;
+  background:
+    radial-gradient(340px 180px at 0 0,rgba(232,182,199,.08),transparent 70%),
+    linear-gradient(160deg,#12131a,#090a0f 72%);
+  box-shadow:0 28px 80px rgba(0,0,0,.56);
+}
+.save-sheet-head{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:flex-start;
+}
+.save-sheet-head small{
+  color:rgba(206,199,209,.34);
+  font-size:6px;
+  letter-spacing:.15em;
+}
+.save-sheet-head h3{
+  margin:6px 0 0;
+  font-family:var(--serif);
+  font-size:20px;
+  font-weight:600;
+  letter-spacing:.07em;
+}
+.save-sheet-head p{
+  margin:7px 0 0;
+  color:rgba(206,199,209,.46);
+  font-size:9px;
+  line-height:1.5;
+}
+.save-sheet-close{
+  width:32px;
+  height:32px;
+  flex:0 0 auto;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:50%;
+  color:rgba(255,255,255,.68);
+  background:rgba(255,255,255,.025);
+  font-size:16px;
+  cursor:pointer;
+}
+.save-sheet-preview{
+  position:relative;
+  margin-top:16px;
+  overflow:hidden;
+  aspect-ratio:.72;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  background:#0c0e13;
+}
+.save-sheet-preview img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:var(--role-media-focus-x) var(--role-media-focus-y);
+}
+.save-preview-meta{
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:10px;
+  padding:10px 11px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;
+  background:rgba(7,8,12,.58);
+  -webkit-backdrop-filter:blur(7px);
+  backdrop-filter:blur(7px);
+}
+.save-preview-meta b{
+  font-family:var(--serif);
+  font-size:10px;
+  font-weight:600;
+}
+.save-preview-meta span{
+  color:rgba(206,199,209,.45);
+  font-size:7px;
+  letter-spacing:.08em;
+}
+.save-sheet-actions{
+  margin-top:12px;
+}
+.save-sheet-actions p{
+  margin:9px 2px 0;
+  color:rgba(206,199,209,.34);
+  font-size:8px;
+  line-height:1.55;
+}
+
+@media(max-width:720px){
+  .archive-modal-panel{
+    top:auto;
+    bottom:0;
+    width:100%;
+    max-height:92vh;
+    transform:translateX(-50%);
+    grid-template-columns:1fr;
+    border-radius:22px 22px 0 0;
+    overflow:auto;
+  }
+  .archive-detail-visual{
+    min-height:330px;
+    border-right:0;
+    border-bottom:1px solid rgba(255,255,255,.07);
+  }
+  .archive-detail-content{
+    overflow:visible;
+    padding:26px 18px 24px;
+  }
+  .detail-heading h2{
+    font-size:28px;
+  }
+  .detail-kicker{
+    padding-right:36px;
+  }
+  .detail-sections p{
+    font-size:10px;
+  }
+  .save-sheet-panel{
+    top:auto;
+    bottom:0;
+    width:100%;
+    transform:translateX(-50%);
+    border-radius:20px 20px 0 0;
+    padding:16px 14px calc(16px + env(safe-area-inset-bottom));
+  }
+  .save-sheet-preview{
+    max-height:54vh;
+  }
+}
+
+
+/* =========================================================
+   Detail reader: long content becomes selectable, not stacked.
+   ========================================================= */
+.detail-reader{
+  margin-top:26px;
+}
+.detail-options{
+  --detail-count:5;
+  display:grid;
+  grid-template-columns:repeat(var(--detail-count),minmax(0,1fr));
+  gap:6px;
+  padding:5px;
+  border:1px solid rgba(255,255,255,.065);
+  border-radius:13px;
+  background:rgba(255,255,255,.018);
+}
+.detail-option{
+  min-width:0;
+  min-height:45px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:7px 7px;
+  border:1px solid transparent;
+  border-radius:9px;
+  color:rgba(213,207,218,.46);
+  background:transparent;
+  cursor:pointer;
+  transition:background .18s ease,border-color .18s ease,color .18s ease;
+}
+.detail-option span{
+  font-size:6px;
+  letter-spacing:.10em;
+  color:rgba(232,182,199,.36);
+}
+.detail-option b{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-family:var(--serif);
+  font-size:9px;
+  font-weight:600;
+  letter-spacing:.05em;
+}
+.detail-option:hover{
+  color:rgba(255,255,255,.72);
+  background:rgba(255,255,255,.025);
+}
+.detail-option.is-active{
+  color:rgba(255,251,253,.92);
+  border-color:rgba(232,182,199,.15);
+  background:
+    linear-gradient(135deg,rgba(232,182,199,.085),rgba(169,187,217,.035)),
+    rgba(255,255,255,.025);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+}
+.detail-option.is-active span{
+  color:rgba(232,182,199,.72);
+}
+
+.detail-reading-panel{
+  position:relative;
+  margin-top:9px;
+  min-height:250px;
+  max-height:330px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior-y:contain;
+  overscroll-behavior-x:none;
+  touch-action:pan-y;
+  padding:18px 17px 28px;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:13px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.012)),
+    rgba(5,6,9,.20);
+  scrollbar-width:thin;
+  scrollbar-color:rgba(232,182,199,.18) transparent;
+}
+.detail-reading-panel::-webkit-scrollbar{width:5px}
+.detail-reading-panel::-webkit-scrollbar-thumb{
+  border-radius:99px;
+  background:rgba(232,182,199,.18);
+}
+.detail-reading-head{
+  position:sticky;
+  top:-18px;
+  z-index:2;
+  margin:-18px -17px 15px;
+  padding:15px 17px 12px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid rgba(255,255,255,.055);
+  background:linear-gradient(180deg,rgba(11,12,17,.98),rgba(11,12,17,.94));
+  -webkit-backdrop-filter:blur(7px);
+  backdrop-filter:blur(7px);
+}
+.detail-reading-head small{
+  display:block;
+  color:rgba(206,199,209,.32);
+  font-size:6px;
+  letter-spacing:.14em;
+}
+.detail-reading-head h3{
+  margin:5px 0 0;
+  font-family:var(--serif);
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:.07em;
+}
+.detail-reading-head>span{
+  margin-top:2px;
+  padding:6px 7px;
+  border:1px solid rgba(255,255,255,.065);
+  border-radius:7px;
+  color:rgba(169,187,217,.45);
+  font-size:5.5px;
+  letter-spacing:.13em;
+}
+.detail-reading-body{
+  color:rgba(226,220,229,.64);
+  font-size:11px;
+  line-height:1.88;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+.detail-reading-body::selection{
+  color:#120e16;
+  background:rgba(232,182,199,.82);
+}
+.detail-reading-fade{
+  position:sticky;
+  z-index:1;
+  left:0;
+  right:0;
+  bottom:-28px;
+  height:28px;
+  margin:0 -17px -28px;
+  pointer-events:none;
+  background:linear-gradient(transparent,rgba(9,10,14,.94));
+}
+
+/* Save panel: only the photo-library destination gets animated holo.
+   The file destination intentionally stays visually static. */
+.save-sheet-photo,
+.save-sheet-file{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+}
+.save-sheet-photo > *,
+.save-sheet-file > *{
+  position:relative;
+  z-index:3;
+}
+
+/* Broad moving rainbow film. It only runs while this sheet is visible. */
+.save-sheet-photo::before{
+  content:"";
+  position:absolute;
+  z-index:1;
+  inset:-75% -45%;
+  pointer-events:none;
+  opacity:0;
+  transform:translate3d(-32%,0,0) rotate(-9deg);
+  background:linear-gradient(
+    108deg,
+    transparent 17%,
+    rgba(255,91,165,.20) 28%,
+    rgba(156,112,255,.18) 37%,
+    rgba(84,220,255,.24) 46%,
+    rgba(116,255,207,.16) 54%,
+    rgba(255,226,105,.22) 63%,
+    rgba(255,138,209,.20) 72%,
+    transparent 83%
+  );
+  mix-blend-mode:screen;
+  will-change:transform,opacity;
+}
+
+/* Narrow bright ribbon so the flow is obvious rather than a static tint. */
+.save-sheet-photo::after{
+  content:"";
+  position:absolute;
+  z-index:2;
+  top:-38%;
+  bottom:-38%;
+  left:-42%;
+  width:34%;
+  pointer-events:none;
+  opacity:0;
+  transform:translate3d(-120%,0,0) skewX(-18deg);
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(117,224,255,.18) 28%,
+    rgba(255,255,255,.48) 48%,
+    rgba(255,178,225,.31) 61%,
+    rgba(255,232,128,.16) 74%,
+    transparent
+  );
+  mix-blend-mode:screen;
+  will-change:transform,opacity;
+}
+
+.save-sheet.is-open .save-sheet-photo::before{
+  opacity:1;
+  animation:savePhotoHoloFilm 3.05s linear infinite;
+}
+.save-sheet.is-open .save-sheet-photo::after{
+  opacity:1;
+  animation:savePhotoHoloRibbon 1.85s cubic-bezier(.43,.05,.46,.95) infinite;
+}
+.save-sheet.is-open .save-sheet-photo{
+  border-color:rgba(171,226,255,.24);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 0 14px rgba(142,218,255,.045);
+}
+
+/* Explicitly keep FILE plain: no rainbow layer, no sweep, no glow loop. */
+.save-sheet-file::before,
+.save-sheet-file::after{
+  content:none!important;
+  animation:none!important;
+}
+.save-sheet-file{
+  box-shadow:none!important;
+}
+
+@keyframes savePhotoHoloFilm{
+  0%{transform:translate3d(-34%,0,0) rotate(-9deg)}
+  50%{transform:translate3d(5%,0,0) rotate(-9deg)}
+  100%{transform:translate3d(36%,0,0) rotate(-9deg)}
+}
+@keyframes savePhotoHoloRibbon{
+  0%{transform:translate3d(-150%,0,0) skewX(-18deg)}
+  100%{transform:translate3d(510%,0,0) skewX(-18deg)}
+}
+
+
+@media(prefers-reduced-motion:reduce){
+  .save-sheet.is-open .save-sheet-photo::before{
+    animation:none!important;
+    opacity:.26!important;
+    transform:translate3d(0,0,0) rotate(-9deg)!important;
+  }
+  .save-sheet.is-open .save-sheet-photo::after{display:none!important}
+}
+
+/* Save panel now mirrors the original site's two destinations. */
+.save-sheet-actions{
+  display:grid!important;
+  gap:8px!important;
+}
+.save-sheet-choice{
+  width:100%;
+  min-height:54px;
+  padding:8px 10px;
+  display:grid;
+  grid-template-columns:28px minmax(0,1fr) 28px;
+  align-items:center;
+  gap:10px;
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:12px;
+  color:rgba(255,255,255,.84);
+  background:rgba(255,255,255,.022);
+  text-decoration:none;
+  cursor:pointer;
+  text-align:left;
+}
+.save-sheet-choice:hover{
+  border-color:rgba(232,182,199,.16);
+  background:rgba(232,182,199,.035);
+}
+.save-sheet-photo{
+  border-color:rgba(232,182,199,.14);
+  background:
+    linear-gradient(135deg,rgba(232,182,199,.085),rgba(169,187,217,.03)),
+    rgba(255,255,255,.018);
+}
+.save-sheet-file{
+  color:rgba(255,255,255,.70);
+  border-color:rgba(255,255,255,.065);
+}
+.save-choice-mark{
+  width:27px;
+  height:27px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:8px;
+  color:rgba(255,255,255,.58);
+  background:rgba(255,255,255,.025);
+  font-size:10px;
+}
+.save-choice-copy{
+  min-width:0;
+  display:grid;
+  gap:4px;
+}
+.save-choice-copy b{
+  font-family:var(--serif);
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:.055em;
+}
+.save-choice-copy small{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:rgba(206,199,209,.37);
+  font-size:5.8px;
+  letter-spacing:.11em;
+}
+.save-sheet-choice i{
+  width:27px;
+  height:27px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.065);
+  border-radius:50%;
+  color:rgba(255,255,255,.51);
+  font-style:normal;
+  font-size:8px;
+}
+.save-sheet-choice[disabled]{
+  opacity:.46;
+  cursor:not-allowed;
+}
+.save-sheet-note{
+  margin:2px 2px 0!important;
+  color:rgba(206,199,209,.35)!important;
+  font-size:7.7px!important;
+  line-height:1.65!important;
+}
+
+@media(max-width:720px){
+  .detail-options{
+    display:flex;
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    scrollbar-width:none;
+    padding:5px;
+  }
+  .detail-options::-webkit-scrollbar{display:none}
+  .detail-option{
+    flex:0 0 auto;
+    min-width:84px;
+    min-height:42px;
+  }
+  .detail-reading-panel{
+    min-height:230px;
+    max-height:36vh;
+    padding:16px 14px 26px;
+  }
+  .detail-reading-head{
+    top:-16px;
+    margin:-16px -14px 14px;
+    padding:13px 14px 11px;
+  }
+  .detail-reading-body{
+    font-size:10.5px;
+    line-height:1.85;
+  }
+  .save-sheet-choice{
+    min-height:52px;
+  }
+}
+
+
+/* Author selector replaces category filters. */
+.author-filters{
+  gap:23px;
+  overflow:visible;
+}
+.author-filter{
+  appearance:none;
+  -webkit-appearance:none;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  font-family:var(--serif);
+  text-transform:none;
+  letter-spacing:.075em;
+  font-size:9px;
+}
+.author-filter.active{
+  color:rgba(255,251,253,.91);
+}
+.author-filter.active::after{
+  left:0;
+  right:0;
+}
+.author-filter:not(.active):hover{
+  color:rgba(247,243,246,.62);
+}
+
+/* Fade gallery lightly when author section changes. */
+.gallery{
+  transition:opacity .16s ease,transform .16s ease;
+}
+.gallery.is-author-switching{
+  opacity:.18;
+  transform:translateY(2px);
+}
+
+@media(max-width:620px){
+  .toolbar{
+    min-height:47px;
+  }
+  .author-filters{
+    gap:19px;
+    overflow:auto;
+    scrollbar-width:none;
+  }
+  .author-filters::-webkit-scrollbar{display:none}
+  .author-filter{
+    flex:0 0 auto;
+    padding-top:15px;
+    padding-bottom:14px;
+    font-size:8.3px;
+  }
+}
+
+
+/* Site header: avatar, Chinese name, English label, archive count. */
+.site-header .author-header-row{
+  width:calc(100% - 22px);
+  height:100%;
+  margin-inline:auto;
+  display:grid;
+  grid-template-columns:48px max-content minmax(0,1fr) auto;
+  grid-template-rows:1fr;
+  grid-template-areas:"avatar name english count";
+  column-gap:12px;
+  row-gap:0;
+  align-items:center;
+}
+
+.author-avatar-shell{
+  grid-area:avatar;
+  width:48px;
+  height:48px;
+  align-self:center;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:15px;
+  background:#11131a;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.055),
+    0 9px 24px rgba(0,0,0,.28);
+}
+.author-avatar-img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}
+
+.author-primary{
+  grid-area:name;
+  min-width:0;
+  align-self:center;
+  padding:0;
+  display:flex;
+  align-items:center;
+}
+.author-primary b{
+  display:block;
+  max-width:none;
+  overflow:visible;
+  text-overflow:clip;
+  white-space:nowrap;
+  font-family:var(--serif);
+  font-size:29px;
+  font-weight:600;
+  line-height:1;
+  letter-spacing:.11em;
+  color:rgba(255,251,253,.96);
+  text-shadow:0 1px 20px rgba(232,182,199,.09);
+}
+
+.author-english{
+  grid-area:english;
+  min-width:0;
+  align-self:center;
+  padding:2px 0 0;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  overflow:hidden;
+}
+.author-english span{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:7px;
+  font-weight:650;
+  letter-spacing:.18em;
+  color:rgba(225,218,228,.46);
+}
+.author-english small{
+  display:none;
+}
+
+.archive-count{
+  grid-area:count;
+  align-self:center;
+  width:auto;
+  min-width:48px;
+  height:auto;
+  padding-left:10px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:center;
+  gap:3px;
+  border-left:1px solid rgba(255,255,255,.055);
+}
+.archive-count span{
+  color:rgba(206,199,209,.34);
+  font-size:5.6px;
+  letter-spacing:.13em;
+}
+.archive-count b{
+  font-family:var(--serif);
+  font-size:19px;
+  font-weight:500;
+  line-height:1;
+}
+
+/* Narrow viewport: preserve the same left-to-right order, just tighten spacing. */
+@media(max-width:620px){
+  .site-header{
+    height:82px;
+  }
+
+  .site-header .author-header-row{
+    grid-template-columns:42px max-content minmax(0,1fr) 45px;
+    column-gap:8px;
+  }
+
+  .author-avatar-shell{
+    width:42px;
+    height:42px;
+    border-radius:13px;
+  }
+
+  .author-primary b{
+    font-size:21px;
+    letter-spacing:.075em;
+  }
+
+  .author-english span{
+    font-size:5.8px;
+    letter-spacing:.13em;
+  }
+
+  .archive-count{
+    min-width:45px;
+    padding-left:7px;
+  }
+
+  .archive-count b{
+    font-size:17px;
+  }
+}
+
+/* Card-action foil surfaces. */
+
+.detail-action,
+.download-action{
+  isolation:isolate!important;
+  overflow:hidden!important;
+  transition:
+    border-color .42s ease,
+    box-shadow .42s ease,
+    color .42s ease,
+    transform .32s cubic-bezier(.2,.8,.2,1)!important;
+}
+
+/* Keep text/icon above both animated holo layers. */
+.detail-action .action-copy,
+.detail-action .action-arrow,
+.download-action .download-icon{
+  position:relative;
+  z-index:4;
+}
+
+/* Animated rainbow film used by loaded detail actions. */
+.detail-action::before{
+  content:"";
+  position:absolute;
+  z-index:1;
+  inset:-55%;
+  pointer-events:none;
+  opacity:0;
+  transform:translate3d(0,0,0) rotate(-8deg);
+  background:linear-gradient(
+    112deg,
+    rgba(255,92,166,.15) 0%,
+    rgba(151,116,255,.13) 18%,
+    rgba(89,219,255,.16) 36%,
+    rgba(122,255,202,.10) 52%,
+    rgba(255,222,107,.16) 68%,
+    rgba(255,138,205,.14) 84%,
+    rgba(255,92,166,.15) 100%
+  )!important;
+  background-size:260% 100%!important;
+  background-position:0% 50%!important;
+  transition:opacity .48s ease;
+  animation:holoActionDrift 3.1s linear infinite;
+  will-change:background-position,opacity,transform;
+}
+
+/* A narrow specular ribbon makes the effect visibly "flow" instead of just appearing. */
+.detail-action::after{
+  content:"";
+  position:absolute;
+  z-index:2;
+  top:-35%;
+  bottom:-35%;
+  left:-68%;
+  width:48%;
+  pointer-events:none;
+  opacity:0;
+  transform:skewX(-17deg) translateX(-40%);
+  background:linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.024) 20%,
+    rgba(135,221,255,.168) 39%,
+    rgba(255,203,236,.264) 50%,
+    rgba(255,230,138,.156) 61%,
+    rgba(255,255,255,.024) 80%,
+    transparent 100%
+  );
+  filter:blur(.25px);
+  transition:opacity .45s ease;
+  animation:holoRibbonDetail 2.65s cubic-bezier(.44,.05,.45,.95) infinite;
+  will-change:transform,opacity;
+}
+
+@keyframes holoActionDrift{
+  0%   { background-position:center, 0% 50%; }
+  50%  { background-position:center, 100% 50%; }
+  100% { background-position:center, 0% 50%; }
+}
+
+@keyframes holoRibbonDetail{
+  0%   { transform:skewX(-17deg) translateX(-55%); }
+  100% { transform:skewX(-17deg) translateX(430%); }
+}
+
+/* 查看档案：常态直接使用原悬停态的柔和亮度。 */
+.archive-card.is-loaded .detail-action{
+  border-color:rgba(209,198,255,.26)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.045),
+    0 0 15px rgba(153,218,255,.055)!important;
+}
+.archive-card.is-loaded .detail-action::before{opacity:.68!important}
+.archive-card.is-loaded .detail-action::after{opacity:.70!important}
+.archive-card.is-loaded .detail-action .action-arrow{
+  border-color:rgba(199,214,255,.26)!important;
+  color:rgba(255,255,255,.87)!important;
+  background:rgba(184,211,255,.055)!important;
+}
+
+/* Never flash holo while the card itself is still unloaded. */
+.archive-card:not(.is-loaded) .detail-action::before,
+.archive-card:not(.is-loaded) .detail-action::after{
+  display:none!important;
+}
+
+/* Respect reduced-motion: keep only a soft static tint. */
+@media(prefers-reduced-motion:reduce){
+  .detail-action::before,
+  .detail-action::after{
+    animation:none!important;
+  }
+}
+
+
+/* Pointer feedback adds a small physical emphasis. */
+@media(hover:hover) and (pointer:fine){
+  .archive-card.is-loaded .detail-action:hover,
+  .archive-card.is-loaded .detail-action:focus-visible{
+    transform:translateY(-1px)!important;
+  }
+  .archive-card.is-loaded .detail-action:hover .action-arrow{
+    transform:translateX(2px);
+  }
+}
+
+/* Touch screens retain the detail-action treatment; the download control is
+   intentionally static on touch devices because there is no hover state. */
+@media(hover:none){
+  .archive-card.is-loaded .detail-action::before{opacity:.68!important}
+  .archive-card.is-loaded .detail-action::after{opacity:.70!important}
+}
+
+/* Reduced motion gets static holo instead of animation. */
+@media(prefers-reduced-motion:reduce){
+  .archive-card.is-loaded .detail-action::before{
+    opacity:.32!important;
+  }
+  .archive-card.is-loaded .detail-action::after{
+    opacity:.18!important;
+  }
+}
+
+
+/* Interaction motion tokens. */
+:root{
+  --motion-fast:160ms;
+  --motion-ui:260ms;
+  --motion-panel:420ms;
+  --motion-load:760ms;
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-soft:cubic-bezier(.22,.75,.2,1);
+  --ease-inout:cubic-bezier(.65,0,.35,1);
+}
+html{scrollbar-gutter:stable}
+
+/* Universal tactile response for all interactive controls. */
+button,
+a.save-sheet-choice,
+.detail-option,
+.author-filter{
+  -webkit-tap-highlight-color:transparent;
+  transform-origin:center;
+}
+button:not(:disabled),
+a.save-sheet-choice{
+  transition:
+    transform var(--motion-fast) var(--ease-out),
+    opacity var(--motion-fast) ease,
+    border-color var(--motion-ui) ease,
+    background-color var(--motion-ui) ease,
+    box-shadow var(--motion-ui) ease,
+    color var(--motion-ui) ease;
+}
+button:not(:disabled):active,
+a.save-sheet-choice:active{
+  transform:scale(.972);
+  transition-duration:90ms;
+}
+
+/* Author switching: header + gallery move as one transition. */
+.author-avatar-img,
+.author-primary b,
+.author-english span,
+.archive-count b{
+  transition:opacity var(--motion-ui) ease,transform var(--motion-ui) var(--ease-out),filter var(--motion-ui) ease;
+}
+.site-header.is-author-swapping .author-avatar-img,
+.site-header.is-author-swapping .author-primary b,
+.site-header.is-author-swapping .author-english span,
+.site-header.is-author-swapping .archive-count b{
+  opacity:.24;
+  transform:translateY(4px);
+  filter:blur(2px);
+}
+.gallery{
+  transition:opacity 220ms ease,transform 300ms var(--ease-out),filter 240ms ease!important;
+}
+.gallery.is-author-switching{
+  opacity:.12!important;
+  transform:translateY(7px) scale(.996)!important;
+  filter:blur(1.5px);
+}
+.author-filter.active::after{
+  transform-origin:left center;
+  animation:motionUnderline 360ms var(--ease-out) both;
+}
+
+/* Unloaded -> loaded choreography. */
+.archive-card .card-face{
+  transition:
+    border-color var(--motion-load) ease,
+    box-shadow var(--motion-load) var(--ease-out),
+    transform 360ms var(--ease-out);
+}
+.archive-card.is-loading-now .card-face::after{
+  content:"";
+  position:absolute;
+  z-index:7;
+  inset:-40% -80%;
+  pointer-events:none;
+  opacity:.52;
+  transform:translateX(-32%) rotate(-14deg);
+  background:linear-gradient(90deg,transparent 39%,rgba(255,255,255,.018) 45%,rgba(232,182,199,.06) 50%,rgba(169,187,217,.045) 55%,transparent 61%);
+  animation:motionLoadingSweep 1.2s var(--ease-inout) infinite;
+}
+.archive-card.is-loaded .card-face{
+  border-color:rgba(255,255,255,.095);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 15px 34px rgba(0,0,0,.19);
+}
+.archive-card.is-loaded .loaded-art{
+  transition:opacity 620ms ease,transform 880ms var(--ease-out),filter 780ms ease!important;
+  filter:saturate(1.04) contrast(1.01);
+}
+.archive-card:not(.is-loaded) .loading-core{
+  animation:motionLoadingBreathe 1.7s ease-in-out infinite;
+}
+.archive-card.is-loaded .state-label-ready{
+  animation:motionReadyCopy 560ms 110ms var(--ease-out) both;
+}
+.toolbar-status span.is-status-pulse{
+  display:inline-block;
+  animation:motionStatusPulse 420ms var(--ease-out) both;
+}
+
+/* Hover/press only when the device actually has hover. */
+@media(hover:hover) and (pointer:fine){
+  .archive-card.is-loaded:hover .card-face{
+    transform:translateY(-2px);
+    border-color:rgba(232,182,199,.13);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 18px 42px rgba(0,0,0,.24);
+  }
+  .author-filter:hover,
+  .detail-option:hover,
+  .save-sheet-choice:hover{
+    transform:translateY(-1px);
+  }
+}
+
+/* Modal/sheet: keep mounted so CLOSE can animate too. */
+.archive-modal,
+.save-sheet{
+  display:block!important;
+  visibility:hidden;
+  opacity:0;
+  pointer-events:none;
+  transition:visibility 0s linear var(--motion-panel),opacity var(--motion-panel) ease;
+}
+.archive-modal.is-open,
+.save-sheet.is-open{
+  visibility:visible;
+  opacity:1;
+  pointer-events:auto;
+  transition-delay:0s;
+}
+.archive-modal-backdrop,
+.save-sheet-backdrop{
+  opacity:0;
+  transition:opacity var(--motion-panel) ease,backdrop-filter var(--motion-panel) ease;
+}
+.archive-modal.is-open .archive-modal-backdrop,
+.save-sheet.is-open .save-sheet-backdrop{opacity:1}
+
+.archive-modal-close,
+.save-sheet-close{
+  transition:transform 260ms var(--ease-out),background 220ms ease,border-color 220ms ease!important;
+}
+@media(hover:hover){
+  .archive-modal-close:hover,
+  .save-sheet-close:hover{transform:rotate(8deg) scale(1.04)}
+}
+
+.save-sheet-preview img{
+  transition:opacity 280ms ease,transform 520ms var(--ease-out),filter 340ms ease;
+}
+.save-sheet.is-preparing .save-sheet-preview img{
+  opacity:.42;
+  transform:scale(1.018);
+  filter:blur(2px);
+}
+/* Tab selection + reading content. */
+.detail-option{
+  position:relative;
+  overflow:hidden;
+  transition:color 220ms ease,border-color 260ms ease,background 260ms ease,transform 180ms var(--ease-out)!important;
+}
+.detail-option::after{
+  content:"";
+  position:absolute;
+  left:22%;right:22%;bottom:4px;height:1px;
+  opacity:0;
+  transform:scaleX(.15);
+  background:linear-gradient(90deg,transparent,rgba(232,182,199,.72),transparent);
+  transition:opacity 240ms ease,transform 320ms var(--ease-out);
+}
+.detail-option.is-active::after{opacity:1;transform:scaleX(1)}
+/* Save/download controls visibly acknowledge action. */
+.save-sheet-choice.is-activating,
+.detail-save-btn.is-activating{
+  animation:motionActionConfirm 440ms var(--ease-out) both;
+}
+.save-choice-mark,
+.save-sheet-choice i,
+.action-arrow,
+.download-icon{
+  transition:transform 240ms var(--ease-out),border-color 240ms ease,color 240ms ease,background 240ms ease;
+}
+@media(hover:hover){
+  .save-sheet-choice:hover .save-choice-mark,
+  .save-sheet-choice:hover i,
+  .detail-primary-download:hover i,
+  .detail-action:hover .action-arrow{transform:translateX(2px)}
+}
+
+/* Animated success/status toast, injected by JS. */
+.motion-toast{
+  position:fixed;
+  z-index:3000;
+  left:50%;
+  bottom:max(22px,calc(14px + env(safe-area-inset-bottom)));
+  width:min(360px,calc(100% - 28px));
+  min-height:52px;
+  padding:10px 13px;
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr);
+  gap:10px;
+  align-items:center;
+  visibility:hidden;
+  opacity:0;
+  transform:translate(-50%,14px) scale(.97);
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:14px;
+  color:rgba(255,255,255,.91);
+  background:rgba(12,13,19,.88);
+  -webkit-backdrop-filter:blur(16px) saturate(1.2);
+  backdrop-filter:blur(16px) saturate(1.2);
+  box-shadow:0 18px 46px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);
+  pointer-events:none;
+  transition:
+    visibility 0s linear 320ms,
+    opacity 260ms ease,
+    transform 360ms var(--ease-out);
+}
+.motion-toast.is-show{
+  visibility:visible;
+  opacity:1;
+  transform:translate(-50%,0) scale(1);
+  transition-delay:0s;
+}
+.motion-toast-mark{
+  width:30px;height:30px;display:grid;place-items:center;
+  border:1px solid rgba(169,187,217,.18);
+  border-radius:10px;
+  background:linear-gradient(135deg,rgba(232,182,199,.10),rgba(169,187,217,.07));
+  font-size:12px;
+}
+.motion-toast-copy{min-width:0;display:grid;gap:3px}
+.motion-toast-copy b{font-family:var(--serif);font-size:10px;font-weight:600;letter-spacing:.06em}
+.motion-toast-copy small{font-size:7px;color:rgba(206,199,209,.48);letter-spacing:.06em;white-space:normal}
+.motion-toast.is-show .motion-toast-mark{animation:motionToastMark 520ms 80ms var(--ease-out) both}
+
+@keyframes motionDotIn{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:scale(1)}}
+@keyframes motionUnderline{from{opacity:0;transform:scaleX(.15)}to{opacity:1;transform:scaleX(1)}}
+@keyframes motionLoadingSweep{0%{transform:translateX(-35%) rotate(-14deg)}100%{transform:translateX(35%) rotate(-14deg)}}
+@keyframes motionLoadingBreathe{0%,100%{opacity:.72;transform:translateY(0)}50%{opacity:1;transform:translateY(-1px)}}
+@keyframes motionReadyCopy{from{opacity:0;transform:translateY(7px);filter:blur(2px)}to{opacity:1;transform:none;filter:none}}
+@keyframes motionStatusPulse{0%{opacity:.38;transform:translateY(2px)}100%{opacity:1;transform:none}}
+@keyframes motionActionConfirm{0%{transform:scale(1)}42%{transform:scale(.975)}100%{transform:scale(1)}}
+@keyframes motionToastMark{0%{opacity:0;transform:scale(.45) rotate(-10deg)}65%{transform:scale(1.08) rotate(2deg)}100%{opacity:1;transform:none}}
+
+@media(prefers-reduced-motion:reduce){
+  .archive-card,
+  .archive-card .card-face,
+  .archive-modal,
+  .archive-modal-panel,
+  .archive-modal-backdrop,
+  .save-sheet,
+  .save-sheet-panel,
+  .save-sheet-backdrop,
+  .motion-toast,
+  .gallery,
+  .author-avatar-img,
+  .author-primary b,
+  .author-english span,
+  .archive-count b{
+    transition-duration:.01ms!important;
+    animation:none!important;
+  }
+  .archive-card.is-loading-now .card-face::after{display:none!important}
+  .archive-card:not(.is-loaded) .loading-core{animation:none!important}
+  .archive-card{opacity:1;transform:none;filter:none}
+}
+
+
+
+/* Author-section transition: header reel and visible-card deal. */
+
+/* Author filter gets a traveling glint, separate from normal button feedback. */
+.author-filter{
+  overflow:hidden;
+  isolation:isolate;
+}
+.author-filter::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:8px -18px;
+  opacity:0;
+  transform:translateX(-65%) skewX(-18deg);
+  background:linear-gradient(90deg,transparent,rgba(232,182,199,.075),rgba(169,187,217,.045),transparent);
+  pointer-events:none;
+}
+.author-filter.active::before{
+  animation:authorFilterGlint 560ms var(--ease-out) both;
+}
+
+/* The header elements each obey a different piece of the "change archive reel" motion. */
+.site-header .author-avatar-shell{
+  transform-style:preserve-3d;
+  perspective:700px;
+}
+.site-header.author-switch-out .author-avatar-shell{
+  animation:authorAvatarOut 235ms cubic-bezier(.5,0,.8,.35) both;
+}
+.site-header.author-switch-in .author-avatar-shell{
+  animation:authorAvatarIn 520ms var(--ease-out) both;
+}
+.site-header.author-switch-out .author-primary b{
+  animation:authorNameOut 210ms cubic-bezier(.55,0,.8,.35) both;
+}
+.site-header.author-switch-in .author-primary b{
+  animation:authorNameIn 500ms 35ms var(--ease-out) both;
+}
+.site-header.author-switch-out .author-english span{
+  animation:authorEnglishOut 190ms ease-in both;
+}
+.site-header.author-switch-in .author-english span{
+  animation:authorEnglishIn 540ms 70ms var(--ease-out) both;
+}
+.site-header.author-switch-out .archive-count b{
+  animation:authorCountOut 210ms cubic-bezier(.5,0,.8,.35) both;
+}
+.site-header.author-switch-in .archive-count b{
+  animation:authorCountIn 520ms 55ms var(--ease-out) both;
+}
+
+/* Gallery no longer fades as one slab. Visible cards are "dealt" out/in individually. */
+.gallery.author-switch-out,
+.gallery.author-switch-in{
+  opacity:1!important;
+  transform:none!important;
+  filter:none!important;
+}
+.gallery.author-switch-out .archive-card:not([hidden]){
+  animation:authorCardDealOut 225ms cubic-bezier(.52,0,.82,.32) both;
+  animation-delay:var(--author-delay,0ms);
+}
+.gallery.author-switch-in .archive-card:not([hidden]){
+  animation:authorCardDealIn 520ms var(--ease-out) both;
+  animation-delay:var(--author-delay,0ms);
+}
+
+@keyframes authorFilterGlint{
+  0%{opacity:0;transform:translateX(-70%) skewX(-18deg)}
+  25%{opacity:1}
+  100%{opacity:0;transform:translateX(75%) skewX(-18deg)}
+}
+@keyframes authorAvatarOut{
+  from{opacity:1;transform:rotateY(0) scale(1);filter:none}
+  to{opacity:.08;transform:rotateY(var(--author-avatar-out-rot)) scale(.88);filter:blur(2px)}
+}
+@keyframes authorAvatarIn{
+  0%{opacity:0;transform:rotateY(var(--author-avatar-in-rot)) scale(.86);filter:blur(3px)}
+  62%{opacity:1;transform:rotateY(var(--author-avatar-bounce-rot)) scale(1.025);filter:none}
+  100%{opacity:1;transform:none;filter:none}
+}
+@keyframes authorNameOut{
+  to{opacity:0;transform:translateX(var(--author-name-out-x)) skewX(var(--author-name-out-skew));filter:blur(2px)}
+}
+@keyframes authorNameIn{
+  0%{opacity:0;transform:translateX(var(--author-name-in-x)) skewX(var(--author-name-in-skew));filter:blur(3px)}
+  70%{opacity:1;transform:translateX(var(--author-name-over-x));filter:none}
+  100%{opacity:1;transform:none;filter:none}
+}
+@keyframes authorEnglishOut{
+  to{opacity:0;clip-path:inset(0 100% 0 0);letter-spacing:.22em}
+}
+@keyframes authorEnglishIn{
+  0%{opacity:0;clip-path:inset(0 0 0 100%);letter-spacing:.22em}
+  100%{opacity:1;clip-path:inset(0);letter-spacing:inherit}
+}
+@keyframes authorCountOut{
+  to{opacity:0;transform:translateY(var(--author-count-out-y)) scale(.92);filter:blur(1px)}
+}
+@keyframes authorCountIn{
+  0%{opacity:0;transform:translateY(var(--author-count-in-y)) scale(.9);filter:blur(2px)}
+  72%{opacity:1;transform:translateY(var(--author-count-over-y)) scale(1.04);filter:none}
+  100%{opacity:1;transform:none;filter:none}
+}
+@keyframes authorCardDealOut{
+  0%{opacity:1;transform:translateX(0) translateY(0) rotateZ(0) scale(1);filter:none}
+  100%{
+    opacity:0;
+    transform:
+      translateX(var(--author-card-out-x))
+      translateY(5px)
+      rotateZ(var(--author-card-out-rot))
+      scale(.985);
+    filter:blur(1.2px) saturate(.8);
+  }
+}
+@keyframes authorCardDealIn{
+  0%{
+    opacity:0;
+    transform:
+      translateX(var(--author-card-in-x))
+      translateY(8px)
+      rotateZ(var(--author-card-in-rot))
+      scale(.972);
+    filter:blur(2px) saturate(.78);
+  }
+  72%{
+    opacity:1;
+    transform:translateX(var(--author-card-over-x)) translateY(-1px) rotateZ(var(--author-card-over-rot)) scale(1.004);
+    filter:none;
+  }
+  100%{opacity:1;transform:none;filter:none}
+}
+
+@media(max-width:720px){
+  .gallery.author-switch-out .archive-card:not([hidden]){animation-duration:190ms}
+  .gallery.author-switch-in .archive-card:not([hidden]){animation-duration:440ms}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .site-header.author-switch-out .author-avatar-shell,
+  .site-header.author-switch-in .author-avatar-shell,
+  .site-header.author-switch-out .author-primary b,
+  .site-header.author-switch-in .author-primary b,
+  .site-header.author-switch-out .author-english span,
+  .site-header.author-switch-in .author-english span,
+  .site-header.author-switch-out .archive-count b,
+  .site-header.author-switch-in .archive-count b,
+  .gallery.author-switch-out .archive-card,
+  .gallery.author-switch-in .archive-card,
+  .author-filter.active::before{
+    animation:none!important;
+  }
+}
+
+
+/* Detail-reader and fine-interaction motion. */
+
+/* Shared sliding selection plate for the detail tabs. */
+.detail-options{
+  --detail-index:0;
+  --detail-shift:0px;
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+}
+.detail-options::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  left:5px;
+  top:5px;
+  bottom:5px;
+  width:calc((100% - 10px - (var(--detail-count) - 1) * 6px) / var(--detail-count));
+  border:1px solid rgba(232,182,199,.14);
+  border-radius:9px;
+  background:
+    linear-gradient(135deg,rgba(232,182,199,.082),rgba(169,187,217,.035)),
+    rgba(255,255,255,.022);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+  transform:translateX(var(--detail-shift));
+  transition:transform 420ms cubic-bezier(.2,.82,.2,1),border-color 260ms ease,background 320ms ease;
+  pointer-events:none;
+}
+.detail-option{
+  z-index:1;
+  background:transparent!important;
+  border-color:transparent!important;
+  -webkit-tap-highlight-color:transparent;
+}
+.detail-option.is-active{
+  box-shadow:none!important;
+}
+.detail-option span,
+.detail-option b{
+  transition:transform 330ms cubic-bezier(.2,.82,.2,1),opacity 260ms ease,color 260ms ease,letter-spacing 330ms ease;
+}
+.detail-option:not(.is-active) span{transform:scale(.92);opacity:.72}
+.detail-option.is-active span{transform:scale(1.08);opacity:1}
+.detail-option.is-active b{letter-spacing:.075em}
+.detail-option.is-tab-hit span{animation:detailIndexTick 420ms cubic-bezier(.2,.82,.2,1) both}
+.detail-option.is-tab-hit b{animation:detailLabelSettle 420ms cubic-bezier(.2,.82,.2,1) both}
+
+/* Reading panel gets a small living surface, not a static box. */
+.detail-reading-panel{
+  --detail-dir:1;
+  --detail-accent-x:50%;
+  isolation:isolate;
+  perspective:900px;
+  transition:border-color 320ms ease,box-shadow 360ms ease,background 420ms ease;
+}
+.detail-reading-panel::before{
+  content:"";
+  position:absolute;
+  z-index:6;
+  left:0;right:0;
+  top:0;
+  height:1px;
+  opacity:0;
+  pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(232,182,199,.55),rgba(169,187,217,.34),transparent);
+  transform:translateY(-2px);
+}
+.detail-reading-panel::after{
+  content:"";
+  position:absolute;
+  z-index:0;
+  inset:0;
+  opacity:0;
+  pointer-events:none;
+  background:radial-gradient(280px 120px at var(--detail-accent-x) 0%,rgba(232,182,199,.055),transparent 70%);
+  transition:opacity 420ms ease;
+}
+.detail-reading-head,.detail-reading-body,.detail-reading-fade{position:relative}
+.detail-reading-head{z-index:3}
+.detail-reading-body{z-index:2;transform-origin:50% 0}
+.detail-reading-fade{z-index:2}
+.detail-reading-panel.is-reading-scrolled{
+  border-color:rgba(255,255,255,.092);
+  box-shadow:inset 0 9px 22px rgba(0,0,0,.13);
+}
+.detail-reading-panel.is-reading-scrolled .detail-reading-head{
+  border-bottom-color:rgba(232,182,199,.09);
+  box-shadow:0 10px 18px rgba(4,5,8,.16);
+}
+.detail-reading-panel.is-reading-scrolled .detail-reading-head>span{
+  border-color:rgba(169,187,217,.12);
+  color:rgba(185,203,231,.62);
+}
+@media(hover:hover) and (pointer:fine){
+  .detail-tags span:hover{
+    transform:translateY(-2px);
+    color:rgba(238,233,241,.69);
+    border-color:rgba(232,182,199,.13);
+    background:rgba(232,182,199,.035);
+  }
+}
+.detail-save-btn{
+  overflow:hidden;
+  isolation:isolate;
+  transition:transform 200ms cubic-bezier(.2,.82,.2,1),border-color 260ms ease,background 300ms ease!important;
+}
+.detail-save-btn::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transform:translateX(-70%) skewX(-18deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.045),transparent);
+  pointer-events:none;
+}
+.detail-save-btn:hover::before{animation:detailButtonSheen 620ms ease both}
+.detail-save-btn.is-activating{animation:detailSaveDrop 460ms cubic-bezier(.2,.82,.2,1) both}
+
+/* Close control gets a distinct mechanical snap rather than ordinary hover. */
+.archive-modal-close:active,.save-sheet-close:active{transform:rotate(-11deg) scale(.9)!important}
+
+/* When a modal opens, scale from the approximate location of the selected card. */
+.archive-modal-panel{transform-origin:var(--archive-origin-x,50%) var(--archive-origin-y,50%)}
+
+@keyframes detailIndexTick{0%{transform:scale(1.08)}38%{transform:scale(.82) rotate(-7deg)}72%{transform:scale(1.16) rotate(2deg)}100%{transform:scale(1.08)}}
+@keyframes detailLabelSettle{0%{transform:translateY(0)}42%{transform:translateY(2px);opacity:.62}100%{transform:none;opacity:1}}
+
+@keyframes detailTagResolve{0%{opacity:0;transform:translateY(5px) scale(.94)}70%{opacity:1;transform:translateY(-1px) scale(1.015)}100%{opacity:1;transform:none}}
+@keyframes detailButtonSheen{0%{opacity:0;transform:translateX(-75%) skewX(-18deg)}30%{opacity:.8}100%{opacity:0;transform:translateX(80%) skewX(-18deg)}}
+@keyframes detailSaveDrop{0%{transform:translateY(0)}38%{transform:translateY(4px) scale(.9)}72%{transform:translateY(-1px) scale(1.04)}100%{transform:none}}
+
+@media(max-width:720px){
+  .detail-options{
+    overflow-x:auto;
+    overflow-y:hidden;
+  }
+  .detail-options::before{
+    width:84px;
+    transform:translateX(calc(var(--detail-index) * 90px));
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .detail-options::before,
+  .detail-option span,
+  .detail-option b,
+  .detail-reading-panel,
+  .detail-reading-head,
+  .detail-reading-body,
+  .detail-reading-panel::before,
+  .detail-reading-panel::after,
+  .detail-tags span,
+  .detail-primary-download,
+  .detail-primary-download i{
+    animation:none!important;
+    transition-duration:.01ms!important;
+    transform:none!important;
+    filter:none!important;
+    clip-path:none!important;
+  }
+}
+
+
+/* Detail visual itself has a separate "evidence desk" entrance. */
+.archive-modal.is-open .detail-visual-top span{animation:detailBadgeFromLeft 470ms 130ms cubic-bezier(.2,.82,.2,1) both}
+.archive-modal.is-open .detail-visual-top small{animation:detailBadgeFromRight 470ms 170ms cubic-bezier(.2,.82,.2,1) both}
+.archive-modal.is-open .detail-visual-bottom{animation:detailVisualFooterIn 560ms 200ms cubic-bezier(.2,.82,.2,1) both}
+.archive-modal.is-open .detail-save-btn{animation:detailSaveButtonResolve 500ms 260ms cubic-bezier(.2,.82,.2,1) both}
+
+/* Primary card action feels like a physical latch; separate from hover shimmer. */
+.archive-card.is-loaded .detail-action:active{
+  transform:scale(.987)!important;
+}
+.archive-card.is-loaded .detail-action:active .action-arrow{
+  transform:translateX(3px) scale(.9)!important;
+}
+.download-action:active .download-icon{animation:detailMiniDownload 360ms cubic-bezier(.2,.82,.2,1) both}
+
+/* Save sheet choices are intentionally different: share pops, file drops. */
+.save-sheet-photo.is-activating .save-choice-mark{animation:savePhotoPulse 470ms cubic-bezier(.2,.82,.2,1) both}
+.save-sheet-file.is-activating i{animation:saveFileDrop 480ms cubic-bezier(.2,.82,.2,1) both}
+.save-sheet.is-ready .save-sheet-note{animation:saveNoteResolve 440ms 80ms ease both}
+
+@keyframes detailBadgeFromLeft{from{opacity:0;transform:translateX(-9px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes detailBadgeFromRight{from{opacity:0;transform:translateX(9px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes detailVisualFooterIn{0%{opacity:0;transform:translateY(12px) scale(.98);filter:blur(3px)}100%{opacity:1;transform:none;filter:none}}
+@keyframes detailSaveButtonResolve{0%{opacity:0;transform:translateX(8px)}70%{opacity:1;transform:translateX(-1px)}100%{opacity:1;transform:none}}
+@keyframes detailMiniDownload{0%{transform:none}44%{transform:translateY(4px) scale(.86)}100%{transform:none}}
+@keyframes savePhotoPulse{0%{transform:scale(1)}42%{transform:scale(.8)}70%{transform:scale(1.1)}100%{transform:none}}
+@keyframes saveFileDrop{0%{transform:none}38%{transform:translateY(5px) scale(.9)}76%{transform:translateY(-1px)}100%{transform:none}}
+@keyframes saveNoteResolve{from{opacity:.3;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+
+
+/* Performance constraints for large galleries. */
+
+/* Per-card glass blur is extremely expensive when several cards are visible.
+   Their surfaces already have dark translucent fills, so keep the look and drop
+   only the live background sampling. */
+.archive-card .corner-code,
+.archive-card .bottom-frame,
+.archive-card .detail-action,
+.archive-card .download-action{
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+
+/* Reveal/load keeps the compositor-only filter optimization. */
+.archive-card{
+  filter:none!important;
+}
+.gallery,
+.gallery.is-author-switching,
+.gallery.author-switch-out,
+.gallery.author-switch-in{
+  filter:none!important;
+}
+.archive-card.is-loaded .loaded-art{
+  filter:none!important;
+  transition:opacity 620ms ease,transform 880ms var(--ease-out)!important;
+}
+
+/* Never keep every card promoted to its own GPU layer. Promote only the active
+   card shell; art, stripes, ghosts and foil buttons stay ordinary paint layers. */
+.archive-card .card-face{
+  will-change:auto!important;
+}
+.archive-card.is-motion-visible .card-face{will-change:transform!important}
+.archive-modal.is-open .archive-modal-panel,
+.save-sheet.is-open .save-sheet-panel{will-change:transform,opacity!important}
+
+/* Do not animate unloaded cards that are sitting far below/above the viewport.
+   The visible loading state keeps the same breathe + sweep choreography. */
+.archive-card:not(.is-loaded) .loading-core{animation:none!important}
+.archive-card.is-motion-visible.is-loading-now .loading-core{
+  animation:motionLoadingBreathe 1.7s ease-in-out infinite!important;
+}
+
+/* Base foil used to animate background-position, which repaints the gradient every
+   frame. Moving the already-rasterized foil layer gives the same visible drift but
+   stays on the compositor. */
+@keyframes holoFilmDriftLite{
+  0%,100%{transform:translate3d(-5%,0,0) rotate(-8deg) scale(1.03)}
+  50%{transform:translate3d(5%,0,0) rotate(-8deg) scale(1.03)}
+}
+.detail-action::before{
+  background-position:0% 50%!important;
+  animation-name:holoFilmDriftLite!important;
+  will-change:auto!important;
+}
+.detail-action::after{filter:none!important}
+
+/* Continuous foil runs only while the card is on or near screen. */
+.archive-card .detail-action::before,
+.archive-card .detail-action::after{
+  animation-play-state:paused!important;
+}
+.archive-card.is-motion-visible.is-loaded .detail-action::before,
+.archive-card.is-motion-visible.is-loaded .detail-action::after{
+  animation-play-state:running!important;
+}
+
+/* Keep distant cards in the grid with a measured intrinsic placeholder, while
+   the near-viewport observer removes the paint cost before they are needed. */
+.archive-card:not(.is-near){
+  content-visibility:auto;
+  contain-intrinsic-size:var(--card-ih,420px);
+}
+
+/* Download button: match the detail save control, stay matte at rest, and
+   use one existing sheen only while a fine pointer hovers. */
+.archive-card.is-loaded .download-action{
+  color:#fff!important;
+  border-color:rgba(245,210,226,.42)!important;
+  background:
+    linear-gradient(135deg,
+      rgba(232,182,199,.42) 0%,
+      rgba(200,185,223,.34) 52%,
+      rgba(169,187,217,.27) 100%)!important;
+  animation:none!important;
+  box-shadow:
+    0 6px 16px rgba(0,0,0,.18),
+    0 0 15px rgba(232,182,199,.10),
+    inset 0 1px 0 rgba(255,255,255,.15)!important;
+}
+.archive-card.is-loaded .download-action .download-icon{
+  color:#fff!important;
+  text-shadow:0 1px 0 rgba(0,0,0,.18)!important;
+}
+.download-action::after,
+.archive-card.is-loaded .download-action::after{
+  content:none!important;
+  transition:opacity .34s ease;
+}
+.archive-card.is-loaded .download-action::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:1!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  transform:translateX(-70%) skewX(-18deg)!important;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.045),transparent)!important;
+  transition:opacity .38s ease;
+  animation:none!important;
+}
+@media(hover:hover) and (pointer:fine){
+  .archive-card.is-loaded .download-action:hover::before{
+    animation:detailButtonSheen 620ms ease both!important;
+    opacity:1!important;
+  }
+  .archive-card.is-loaded .download-action:hover,
+  .archive-card.is-loaded .download-action:focus-visible{
+    border-color:rgba(255,226,239,.58)!important;
+    background:
+      linear-gradient(135deg,
+        rgba(239,190,210,.54) 0%,
+        rgba(205,190,230,.44) 52%,
+        rgba(175,197,226,.36) 100%)!important;
+    box-shadow:
+      0 7px 18px rgba(0,0,0,.20),
+      0 0 18px rgba(232,182,199,.16),
+      0 0 22px rgba(169,187,217,.09),
+      inset 0 1px 0 rgba(255,255,255,.18)!important;
+    transform:translateY(-1px)!important;
+  }
+}
+
+/* Author switches used to animate every non-hidden card, including dozens far
+   outside the viewport. Offscreen cards can swap instantly; visible cards keep the
+   full deal-in/deal-out motion. */
+.gallery.author-switch-out .archive-card:not([hidden]):not(.is-motion-visible),
+.gallery.author-switch-in .archive-card:not([hidden]):not(.is-motion-visible){
+  animation:none!important;
+}
+
+/* Full-panel blur during scale-in is one of the most expensive modal operations.
+   Keep the scale/fade (the part the eye actually reads as motion), not the blur. */
+.archive-modal-panel,
+.save-sheet-panel{
+  filter:none!important;
+}
+.save-sheet.is-preparing .save-sheet-preview img{filter:none!important}
+
+/* While an overlay covers the gallery, background card foil cannot be meaningfully
+   seen through the dark backdrop. Freeze it until the overlay closes. */
+body.has-overlay .archive-card .detail-action::before,
+body.has-overlay .archive-card .detail-action::after{
+  animation-play-state:paused!important;
+}
+
+/* Photo save remains visibly holographic even while PNG/share capability is preparing.
+   Disabled still blocks clicks; only the visual opacity is kept strong. */
+.save-sheet.is-open .save-sheet-photo[disabled]{
+  opacity:.88!important;
+}
+.save-sheet.is-open .save-sheet-photo{
+  background:
+    linear-gradient(135deg,rgba(255,108,180,.10),rgba(102,222,255,.075) 46%,rgba(255,222,112,.065)),
+    rgba(255,255,255,.022)!important;
+}
+/* FILE destination is deliberately static. */
+.save-sheet.is-open .save-sheet-file,
+.save-sheet.is-open .save-sheet-file::before,
+.save-sheet.is-open .save-sheet-file::after{
+  animation:none!important;
+}
+
+/* Hidden tabs should not keep compositor animations alive. */
+body.is-page-hidden *,
+body.is-page-hidden *::before,
+body.is-page-hidden *::after{animation-play-state:paused!important}
+
+.save-sheet.is-preparing #saveSheetLink{
+  pointer-events:none!important;
+  opacity:.55!important;
+}
+
+
+
+.detail-save-btn{
+  color:#fff!important;
+  border-color:rgba(245,210,226,.42)!important;
+  background:
+    linear-gradient(135deg,
+      rgba(232,182,199,.42) 0%,
+      rgba(200,185,223,.34) 52%,
+      rgba(169,187,217,.27) 100%)!important;
+  box-shadow:
+    0 6px 16px rgba(0,0,0,.18),
+    0 0 15px rgba(232,182,199,.10),
+    inset 0 1px 0 rgba(255,255,255,.15)!important;
+  text-shadow:0 1px 0 rgba(0,0,0,.18);
+}
+@media(hover:hover) and (pointer:fine){
+  .detail-save-btn:hover,
+  .detail-save-btn:focus-visible{
+    border-color:rgba(255,226,239,.58)!important;
+    background:
+      linear-gradient(135deg,
+        rgba(239,190,210,.54) 0%,
+        rgba(205,190,230,.44) 52%,
+        rgba(175,197,226,.36) 100%)!important;
+    box-shadow:
+      0 7px 18px rgba(0,0,0,.20),
+      0 0 18px rgba(232,182,199,.16),
+      0 0 22px rgba(169,187,217,.09),
+      inset 0 1px 0 rgba(255,255,255,.18)!important;
+  }
+}
+
+/* The author avatar remains the original shell, with keyboard semantics added. */
+.author-avatar-shell{
+  padding:0;
+  color:inherit;
+  font:inherit;
+  cursor:pointer;
+  appearance:none;
+}
+.author-avatar-shell:focus-visible{
+  outline:2px solid rgba(232,182,199,.68);
+  outline-offset:3px;
+}
+.author-avatar-shell:disabled{
+  cursor:wait;
+  opacity:.55;
+}
+
+/* Real role-card media; keep the eye/head area in the display crop. */
+.loaded-art{
+  isolation:isolate;
+}
+.loaded-card-image{
+  position:absolute;
+  z-index:0;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:var(--role-media-focus-x) var(--role-media-focus-y);
+  opacity:0;
+  transform:scale(1.025);
+  transition:
+    opacity .42s ease,
+    transform .62s cubic-bezier(.2,.75,.2,1),
+    filter .32s ease;
+}
+.archive-card.is-loaded.has-source-image .loaded-card-image{
+  opacity:1;
+  transform:scale(1);
+}
+.archive-card.is-image-loading .loaded-card-image{
+  opacity:0;
+  transform:scale(1.025);
+}
+.archive-card.image-error .loaded-card-image{
+  opacity:0;
+}
+.archive-card.is-face-missing .loaded-art{opacity:0!important}
+.archive-card.is-face-missing .state-label-loading{
+  opacity:1!important;
+  transform:none!important;
+}
+.archive-card.is-face-missing .state-label-ready{opacity:0!important}
+.archive-card.is-face-missing .card-face::after{display:none!important}
+.archive-card.is-face-missing .stripe-field{opacity:.80!important}
+.archive-card.is-face-missing.pattern-2 .stripe-field{opacity:.72!important}
+.archive-card.is-face-missing.pattern-3 .stripe-field{opacity:.75!important}
+.archive-card.is-face-missing.pattern-4 .stripe-field{opacity:.72!important}
+.loaded-art::before{
+  z-index:2;
+}
+.detail-art{
+  isolation:isolate;
+}
+.detail-source-image{
+  position:absolute;
+  z-index:0;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:var(--role-media-focus-x) var(--role-media-focus-y);
+  opacity:0;
+  transform:scale(1.025);
+  transition:opacity .42s ease,transform .58s ease;
+}
+.detail-source-image.is-ready{
+  opacity:1;
+  transform:scale(1);
+}
+.detail-art::before{
+  z-index:2;
+  transition:opacity .32s ease;
+}
+.detail-art.has-source::before{opacity:0}
+.toolbar-status.is-error{
+  color:#f1b4bd;
+  cursor:pointer;
+}
+.toolbar-status.is-error i{
+  border-color:#f1b4bd;
+  background:#f1b4bd;
+}
+.save-sheet-panel{
+  max-height:calc(100vh - 24px);
+  overflow-y:auto;
+}
+@media(min-width:721px){
+  .save-sheet-preview{
+    width:auto;
+    height:min(52vh,620px);
+    max-height:none;
+    aspect-ratio:.72;
+    margin-left:auto;
+    margin-right:auto;
+  }
+}

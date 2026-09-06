@@ -1,0 +1,190 @@
+/* ==========================================================================
+   motion.css — 繁花·纷落 角色卡档案 · 入场动效系统
+   --------------------------------------------------------------------------
+   设计原则：
+   1. 方向有语义 —— 元素"从哪来"就往哪个方向揭开，同屏不出现两组以上同向入场
+   2. 时长分层   —— 小元素快、卡片中、弹窗慢，避免全站一个速度
+   3. 性能安全   —— 只动 transform / opacity / clip-path / filter
+   4. 无障碍     —— prefers-reduced-motion 下全部降级为纯淡入
+   本文件不依赖站点原有类名，全部通过 data-motion 属性与 mo-* 类驱动，
+   这些属性和类由 motion.js 自动挂载。
+   ========================================================================== */
+
+/* ---------- 1. Tokens ---------- */
+:root {
+  --dur-xs: 220ms;
+  --dur-sm: 300ms;
+  --dur-md: 420ms;
+  --dur-lg: 520ms;
+
+  --ease-out:  cubic-bezier(.22, .61, .36, 1);
+  --ease-expo: cubic-bezier(.16, 1, .3, 1);
+  --ease-back: cubic-bezier(.34, 1.56, .64, 1);
+
+  --stagger: 60ms;
+  --shift: 1;          /* 位移倍率，移动端减半 */
+  --sweep-tint: 255, 255, 255;   /* 卡片 hover 高光颜色，深底用白、浅底改成 0,0,0 */
+}
+
+@media (max-width: 768px) {
+  :root {
+    --dur-xs: 180ms;
+    --dur-sm: 240ms;
+    --dur-md: 340ms;
+    --dur-lg: 420ms;
+    --stagger: 45ms;
+    --shift: .5;
+  }
+}
+
+/* ---------- 2. Keyframes ---------- */
+@keyframes mo-sweep-down {           /* 从上往下揭开 */
+  from { clip-path: inset(0 0 100% 0); opacity: 0; transform: translateY(calc(-8px * var(--shift))); }
+  to   { clip-path: inset(0 0 0 0);    opacity: 1; transform: none; }
+}
+@keyframes mo-sweep-up {             /* 从下往上揭开 */
+  from { clip-path: inset(100% 0 0 0); opacity: 0; transform: translateY(calc(10px * var(--shift))); }
+  to   { clip-path: inset(0 0 0 0);    opacity: 1; transform: none; }
+}
+@keyframes mo-sweep-left {           /* 从左往右揭开 */
+  from { clip-path: inset(0 100% 0 0); opacity: 0; transform: translateX(calc(-14px * var(--shift))); }
+  to   { clip-path: inset(0 0 0 0);    opacity: 1; transform: none; }
+}
+@keyframes mo-sweep-right {          /* 从右往左揭开 */
+  from { clip-path: inset(0 0 0 100%); opacity: 0; transform: translateX(calc(14px * var(--shift))); }
+  to   { clip-path: inset(0 0 0 0);    opacity: 1; transform: none; }
+}
+@keyframes mo-focus-in {             /* 模糊聚焦，无位移 */
+  from { filter: blur(10px); opacity: 0; letter-spacing: .18em; }
+  to   { filter: blur(0);    opacity: 1; }
+}
+@keyframes mo-settle {               /* 轻微落定 */
+  from { transform: scale(1.04); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+@keyframes mo-rise {                 /* 常规上浮，正文类元素专用 */
+  from { transform: translateY(calc(14px * var(--shift))); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+@keyframes mo-unfold {               /* 以指定原点展开，弹窗专用 */
+  from { scale: .92; opacity: 0; }
+  to   { scale: 1;   opacity: 1; }
+}
+@keyframes mo-fade-in {
+  from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes mo-exit {                 /* 统一退出，不反放入场 */
+  from { opacity: 1; scale: 1; }
+  to   { opacity: 0; scale: .98; }
+}
+/* ---------- 3. 滚动入场基础 ---------- */
+/* 隐藏状态只加在「在屏幕外、还没入场」的元素上，mo-hide 全部由 motion.js 挂。
+   屏幕上的元素永远不会是透明的，所以「整屏纯黑」在结构上就发生不了。 */
+[data-motion].mo-hide { opacity: 0; }
+
+/* 这里刻意不写 animation-fill-mode，也不写 animation-delay。
+   带 fill-mode 的话，动画只要没真正跑起来——后台标签页、被节流的合成器、
+   低电量模式——元素就会永久停在首帧的 opacity:0 上；不带的话它保持静态样式，
+   也就是可见。出错的方向必须永远是「看得见」。
+   交错改由 JS 推迟挂 is-in 实现：等待期间元素还是 mo-hide，
+   不会出现「先显示出来、又被动画打回透明」的闪烁。 */
+[data-motion].is-in {
+  animation-duration: var(--mo-dur, var(--dur-md));
+  animation-timing-function: var(--mo-ease, var(--ease-expo));
+}
+
+[data-motion="sweep-down"].is-in  { animation-name: mo-sweep-down; }
+[data-motion="sweep-up"].is-in    { animation-name: mo-sweep-up; }
+[data-motion="sweep-left"].is-in  { animation-name: mo-sweep-left; }
+[data-motion="sweep-right"].is-in { animation-name: mo-sweep-right; }
+[data-motion="focus-in"].is-in    { animation-name: mo-focus-in; }
+[data-motion="settle"].is-in      { animation-name: mo-settle; }
+[data-motion="rise"].is-in        { animation-name: mo-rise; }
+
+/* ---------- 4. 各角色的时长与缓动分层 ---------- */
+.mo-tab      { --mo-dur: var(--dur-xs); --mo-ease: var(--ease-out); }
+.mo-title    { --mo-dur: var(--dur-lg); --mo-ease: var(--ease-expo); }
+.mo-status   { --mo-dur: var(--dur-sm); }
+.mo-cta      { --mo-dur: var(--dur-sm); --mo-ease: var(--ease-back); }
+.mo-card     { --mo-dur: var(--dur-md); --mo-ease: var(--ease-expo); }
+.mo-section  { --mo-dur: var(--dur-md); }
+
+/* ---------- 5. 下载箭头：固定显示，不参与循环或点击位移动画 ---------- */
+.mo-arrow {
+  animation: none !important;
+  transform: none !important;
+}
+
+/* ---------- 6. 卡片 hover：从下往上扫过的高光 ---------- */
+.mo-card { position: relative; }
+.mo-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(var(--sweep-tint), .18) 0%,
+    rgba(var(--sweep-tint), .06) 45%,
+    rgba(var(--sweep-tint), 0) 78%
+  );
+  opacity: 0;
+  transform: translateY(45%);
+  transition: opacity var(--dur-sm) var(--ease-out),
+              transform var(--dur-sm) var(--ease-out);
+}
+.mo-card:hover::after,
+.mo-card:focus-visible::after { opacity: 1; transform: translateY(0); }
+@media (hover: none) { .mo-card::after { display: none; } }
+
+/* ---------- 7. 详情弹窗 ---------- */
+.mo-backdrop {
+  animation: mo-fade-in var(--dur-sm) var(--ease-out) both;
+}
+.mo-backdrop.is-closing {
+  animation: mo-exit var(--dur-xs) var(--ease-out) both;
+}
+.mo-panel {
+  /* --mo-ox / --mo-oy 由 motion.js 按点击的卡片位置写入 */
+  transform-origin: var(--mo-ox, 50%) var(--mo-oy, 50%);
+  animation: mo-unfold var(--dur-md) var(--ease-expo) both;
+}
+.mo-panel.is-closing {
+  animation: mo-exit var(--dur-xs) var(--ease-out) both;
+}
+
+/* ---------- 8. 弹窗内 tab 切换：五栏各用一种语义动效 ---------- */
+.mo-tabpanel.is-enter-intro     { animation: mo-focus-in   var(--dur-md) var(--ease-expo) both; }
+.mo-tabpanel.is-enter-opening   { animation: mo-sweep-left var(--dur-md) var(--ease-expo) both; }
+.mo-tabpanel.is-enter-setting   { animation: mo-settle     var(--dur-md) var(--ease-back) both; }
+.mo-tabpanel.is-enter-worldbook { animation: mo-sweep-down var(--dur-lg) var(--ease-expo) both; }
+.mo-tabpanel.is-enter-preset    { animation: mo-sweep-up   var(--dur-lg) var(--ease-expo) both; }
+
+/* ---------- 9. 保存 PNG：底部上滑 ---------- */
+.mo-sheet {
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform var(--dur-md) var(--ease-expo),
+              opacity var(--dur-sm) linear;
+}
+.mo-sheet.is-open { transform: translateY(0); opacity: 1; }
+
+/* ---------- 10. 降级与清理 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  [data-motion].is-in,
+  .mo-backdrop,
+  .mo-panel,
+  .mo-tabpanel.is-enter-intro,
+  .mo-tabpanel.is-enter-opening,
+  .mo-tabpanel.is-enter-setting,
+  .mo-tabpanel.is-enter-worldbook,
+  .mo-tabpanel.is-enter-preset {
+    animation-name: mo-fade-in !important;
+    animation-duration: 150ms !important;
+  }
+  .mo-backdrop.is-closing,
+  .mo-panel.is-closing { animation-name: mo-fade-in !important; animation-direction: reverse !important; }
+  .mo-card::after { transition-duration: 1ms !important; }
+  .mo-sheet { transition-duration: 120ms !important; }
+}

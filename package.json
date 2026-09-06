@@ -1,0 +1,26 @@
+{
+  "name": "fanhuafenluo-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "test:ui": "playwright test",
+    "publisher": "node tools/card-publisher/launcher.mjs",
+    "publisher:server": "node tools/card-publisher/server.mjs",
+    "publisher:install": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/card-publisher/install-shortcuts.ps1",
+    "test:publisher": "node --test tests/card-import.test.mjs tests/publisher-server.test.mjs tests/publisher-git.test.mjs",
+    "validate:assets": "node scripts/validate_assets.mjs",
+    "sync:details": "node scripts/sync-card-details.mjs --write",
+    "check:details": "node scripts/sync-card-details.mjs --check",
+    "build:pages": "node scripts/build_pages_site.mjs",
+    "verify:pages-site": "node scripts/verify_pages_site.mjs",
+    "preview": "node scripts/test_server.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0",
+    "@playwright/test": "^1.49.0"
+  },
+  "dependencies": { "sharp": "^0.35.3" }
+}

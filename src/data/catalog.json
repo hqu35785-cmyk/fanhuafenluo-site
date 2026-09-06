@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "sections": [
+    {
+      "id": "fanhuafenluo",
+      "name": "繁花·纷落",
+      "english": "FANHUA · FENLUO",
+      "avatar": "assets/authors/fanhuafenluo-mark.webp",
+      "pinnedCount": 0,
+      "works": []
+    },
+    {
+      "id": "public",
+      "name": "公开",
+      "english": "PUBLIC",
+      "avatar": "assets/authors/public-mark.webp",
+      "pinnedCount": 0,
+      "works": []
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="referrer" content="no-referrer">
+  <title>新站快捷发布卡片 · 繁花·纷落</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/drafts.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="page-header">
+      <div><p class="eyebrow">FAN HUA · LOCAL PUBLISHER</p><h1>让故事，落在这里。</h1><p class="subtitle">拖入角色卡，写好简介，一次发布。</p></div>
+      <span class="local-badge"><span></span>仅在本机运行</span>
+    </header>
+
+    <section class="readiness" aria-label="发布环境">
+      <div class="status-dot" id="readiness-dot"></div>
+      <div><strong id="readiness-title">正在检查发布环境</strong><p id="readiness-message">连接本地工具中…</p></div>
+      <button class="text-button" id="refresh-status" type="button">重新检查</button>
+    </section>
+    <p class="notice" id="notice" role="status" aria-live="polite" hidden></p>
+
+    <div class="workspace">
+      <section class="panel import-panel" aria-labelledby="import-title">
+        <div class="section-heading"><span class="step">01</span><div><h2 id="import-title">选择卡片</h2><p>原始 PNG 保持完整，网页预览自动生成。</p></div></div>
+        <label class="field-label" id="section-label">发布到</label>
+        <div class="section-switch" role="group" aria-labelledby="section-label">
+          <button id="section-fanhuafenluo" class="section-option active" aria-pressed="true" type="button">繁花·纷落</button>
+          <button id="section-public" class="section-option" aria-pressed="false" type="button">公开</button>
+        </div>
+        <div class="draft-picker" id="draft-picker" hidden><label class="field-label" for="saved-drafts">继续本地草稿</label><select id="saved-drafts"><option value="">选择之前导入的卡片…</option></select></div>
+        <label class="drop-zone" id="drop-zone" for="card-file">
+          <input id="card-file" type="file" accept=".png,image/png" aria-label="选择角色卡 PNG">
+          <span class="drop-icon" aria-hidden="true">＋</span>
+          <strong>把 PNG 拖到这里</strong>
+          <span>或点击选择角色卡</span>
+          <small>含 chara 元数据的 PNG · 最大 64 MB</small>
+        </label>
+        <div class="card-result" id="card-result" hidden>
+          <img id="card-preview" alt="导入卡片的轻量预览">
+          <div class="card-information"><span class="mini-label">已解析</span><h3 id="card-name"></h3><p id="card-creator"></p><div id="card-tags" class="tags"></div></div>
+        </div>
+        <div class="material-section">
+          <h3>交给 AI 写简介</h3>
+          <p>复制原始设定和写作要求，发给你喜欢的 AI。审核结果后，再粘贴到右侧。</p>
+          <button id="copy-prompt" class="secondary-button full" type="button" disabled>复制素材 + 简介提示词</button>
+          <button id="download-prompt" class="text-button full" type="button" disabled>下载为文本</button>
+          <details id="material-details" hidden><summary>查看将复制的内容</summary><pre id="material-text"></pre></details>
+        </div>
+      </section>
+
+      <section class="panel write-panel" aria-labelledby="write-title">
+        <div class="section-heading"><span class="step">02</span><div><h2 id="write-title">写好简介，发布</h2><p>简介由你定稿，不会拿原始 description 自动填充。</p></div></div>
+        <div class="label-row"><label class="field-label" for="intro">卡片简介</label><span id="intro-count" class="char-count">0 / 120–180 字</span></div>
+        <textarea id="intro" rows="9" placeholder="粘贴 AI 写好的简介，或在这里手动创作。&#10;&#10;写一段 120–180 个非空白字符的独立介绍，让读者知道人物是谁、关系如何，以及故事从哪里开始。" disabled></textarea>
+        <p class="field-hint">请核对人物与设定、原创简介、展示图片及发布权限。不要上传涉及未成年人的色情内容。</p>
+        <div class="review-box"><span class="mini-label">本次发布</span><p id="publish-summary">选择卡片后，会在这里显示发布摘要。</p><small>自动生成轻量预览、更新目录和详情，并等待网站部署确认。</small></div>
+        <div class="publish-actions">
+          <button id="prepare-button" class="secondary-button" type="button" disabled>校验并保存草稿</button>
+          <button id="publish-button" class="primary-button" type="button" disabled>发布到繁花·纷落 <span aria-hidden="true">↗</span></button>
+        </div>
+        <p class="publish-hint" id="publish-hint">发布前会检查最新远端；不会提交你工作区里的其他修改。</p>
+        <section class="job-box" id="job-box" aria-label="发布进度" aria-live="polite" hidden>
+          <div class="job-top"><strong id="job-title">正在发布</strong><span id="job-state"></span></div>
+          <p id="job-message"></p><code id="job-commit" hidden></code>
+          <div class="job-actions"><button id="check-deployment" class="text-button" type="button" hidden>重新检查上线状态</button><a id="open-site" target="_blank" rel="noopener noreferrer" hidden>打开网站 ↗</a></div>
+        </section>
+      </section>
+    </div>
+    <footer><span>繁花·纷落 / 新站快捷卡片发布工具</span><span>资料先留在本机，点击发布后才上传到仓库。</span></footer>
+  </main>
+</body>
+</html>

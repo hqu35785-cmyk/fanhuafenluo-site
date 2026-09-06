@@ -1,0 +1,25 @@
+.draft-picker {
+  margin:0 0 17px
+}
+
+.draft-picker label {
+  margin-bottom:9px
+}
+
+.draft-picker select {
+  width:100%;
+  min-width:0;
+  padding:10px 12px;
+  border:1px solid #ffffff17;
+  border-radius:8px;
+  color:#c9b5c5;
+  background:#171419;
+  font:inherit;
+  font-size:11px;
+  text-overflow:ellipsis
+}
+
+.draft-picker select:focus-visible {
+  outline:2px solid var(--pink);
+  outline-offset:3px
+}

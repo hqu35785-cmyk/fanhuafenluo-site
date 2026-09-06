@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>繁花·纷落｜角色卡档案</title>
+<meta name="description" content="繁花·纷落与公开两个分区的 TAVO 角色卡档案，可在线浏览完整设定并保存原始 PNG。">
+<meta name="theme-color" content="#08090d">
+<meta name="referrer" content="no-referrer">
+<link rel="canonical" href="https://hqu35785-cmyk.github.io/fanhuafenluo-site/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="繁花·纷落｜角色卡档案">
+<meta property="og:description" content="TAVO 角色卡档案，可在线浏览完整设定并保存原始 PNG。">
+<meta property="og:url" content="https://hqu35785-cmyk.github.io/fanhuafenluo-site/">
+<meta property="og:image" content="https://hqu35785-cmyk.github.io/fanhuafenluo-site/assets/authors/fanhuafenluo-mark.webp">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='%2308090d'/%3E%3Ctext%20x='16'%20y='23'%20font-size='17'%20text-anchor='middle'%20fill='%23e8b6c7'%20font-family='serif'%3EF%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="stylesheet" href="assets/css/motion.css">
+</head>
+<body class="motion-rich">
+    <header class="site-header">
+      <div class="wrap author-header-row">
+        <button
+          class="author-avatar-shell"
+          id="headerAuthorCycle"
+          type="button"
+          aria-label="切换下一位作者"
+        >
+          <img
+            id="headerAuthorAvatar"
+            class="author-avatar-img"
+            src="assets/authors/fanhuafenluo-mark.webp"
+            alt="繁花·纷落头像"
+            width="48"
+            height="48"
+          >
+        </button>
+
+        <div class="author-primary">
+          <b id="headerAuthorName">繁花·纷落</b>
+        </div>
+
+        <div class="author-english">
+          <span id="headerAuthorEnglish">FANHUA · FENLUO</span>
+          <small>CHARACTER CARD ARCHIVE</small>
+        </div>
+
+        <div class="archive-count">
+          <span>ARCHIVE</span>
+          <b id="headerArchiveCount">—</b>
+        </div>
+      </div>
+    </header>
+
+    <main class="archive-main">
+      <div class="toolbar">
+        <div class="filters author-filters" aria-label="作者分区">
+          <button class="filter author-filter active" type="button" data-author="fanhuafenluo" aria-pressed="true">繁花·纷落</button>
+          <button class="filter author-filter" type="button" data-author="public" aria-pressed="false">公开</button>
+        </div>
+        <div class="toolbar-status" id="status" aria-live="polite">
+          <i></i><span>WAITING</span>
+          <button class="status-retry" id="statusRetry" type="button" hidden>重新加载</button>
+        </div>
+      </div>
+
+      <h1 class="sr-only">繁花·纷落角色卡档案</h1>
+      <template id="archiveCardTemplate">
+    <article class="archive-card">
+      <div class="card-face">
+        <div class="loaded-art" aria-hidden="true">
+        </div>
+
+        <div class="stripe-field" aria-hidden="true"></div>
+        <div class="ghost-frame" aria-hidden="true"></div>
+
+        <div class="corner-code"><span class="corner-dot"></span><span class="corner-label"></span></div>
+        <div class="corner-index"></div>
+
+        <div class="loading-core" aria-hidden="true">
+          <div class="state-label state-label-loading">
+            <div class="loading-title">ARCHIVE MATERIALIZING</div>
+            <div class="loading-line"></div>
+            <div class="loading-sub">等待卡面</div>
+          </div>
+          <div class="state-label state-label-ready">
+            <div class="loading-title ready-name"></div>
+            <div class="loading-line"></div>
+            <div class="loading-sub ready-meta"></div>
+          </div>
+        </div>
+
+        <div class="bottom-frame">
+          <button class="detail-action" type="button" tabindex="-1" disabled>
+            <span class="action-copy">
+              <b>查看档案</b>
+              <small>PROFILE · SETTING · OPENING</small>
+            </span>
+            <span class="action-arrow">↗</span>
+          </button>
+          <button class="download-action" type="button" tabindex="-1" disabled aria-label="下载角色卡">
+            <span class="download-icon">⇩</span>
+          </button>
+        </div>
+      </div>
+    </article>
+      </template>
+
+      <section
+        class="gallery"
+        id="archiveGallery"
+        aria-label="角色卡档案"
+        aria-busy="true"
+      >
+        <div class="archive-empty" id="archiveEmptyState" role="status" aria-live="polite" hidden>
+          <span class="archive-empty-index" aria-hidden="true">00</span>
+          <div class="archive-empty-mark" aria-hidden="true"><i></i></div>
+          <div class="archive-empty-copy">
+            <small>ARCHIVE · AWAITING FIRST ENTRY</small>
+            <h2>故事尚未开始</h2>
+            <p>这里暂时没有作品，新的故事会在准备好后出现</p>
+          </div>
+        </div>
+      </section>
+
+      <noscript>
+        <p style="padding:40px 20px;text-align:center;color:#cec7d1;font-size:13px">
+          本页需要 JavaScript 才能加载角色卡档案。
+        </p>
+      </noscript>
+    </main>
+
+    <footer>
+      <div class="wrap"><span>© 2026 繁花·纷落</span><span>UNIFIED CARD LAYOUT</span></div>
+    </footer>
+<div class="archive-modal" id="archiveModal" aria-hidden="true" inert>
+  <div class="archive-modal-backdrop" data-close-archive></div>
+  <section class="archive-modal-panel" role="dialog" aria-modal="true" aria-labelledby="detailName">
+    <button class="archive-modal-close" id="archiveModalClose" type="button" aria-label="关闭档案">×</button>
+
+    <div class="archive-detail-visual" id="detailVisual">
+      <div class="detail-art">
+        <img
+          id="detailImage"
+          class="detail-source-image"
+          alt=""
+          decoding="async"
+        >
+      </div>
+      <div class="detail-visual-top">
+        <span id="detailIdentity">角色身份</span>
+        <small id="detailIndex">ARCHIVE · 01</small>
+      </div>
+      <div class="detail-visual-bottom">
+        <span>TAVO CHARACTER CARD</span>
+        <button class="detail-save-btn" id="detailSaveBtn" type="button">保存角色卡 PNG</button>
+      </div>
+    </div>
+
+    <div class="archive-detail-content">
+      <div class="detail-heading">
+        <div>
+          <h2 id="detailName">角色名</h2>
+          <p id="detailAlias">TAVO CHARACTER CARD · SPEC V1 / V2 / V3</p>
+        </div>
+        <span class="detail-tavo-badge">TAVO</span>
+      </div>
+
+      <div class="detail-reader">
+        <div class="detail-options" role="tablist" aria-label="角色档案内容">
+          <button class="detail-option is-active" type="button" role="tab" aria-selected="true" data-detail-tab="intro">
+            <span>01</span><b>简介</b>
+          </button>
+          <button class="detail-option" type="button" role="tab" aria-selected="false" data-detail-tab="opening">
+            <span>02</span><b>开场白</b>
+          </button>
+          <button class="detail-option" type="button" role="tab" aria-selected="false" data-detail-tab="setting">
+            <span>03</span><b>人物设定</b>
+          </button>
+          <button class="detail-option" type="button" role="tab" aria-selected="false" data-detail-tab="worldbook">
+            <span>04</span><b>世界书</b>
+          </button>
+          <button class="detail-option" type="button" role="tab" aria-selected="false" data-detail-tab="preset">
+            <span>05</span><b>预设</b>
+          </button>
+        </div>
+
+        <section class="detail-reading-panel" role="tabpanel" tabindex="0">
+          <div class="detail-reading-head">
+            <div>
+              <small id="detailPanelIndex">01 · CHARACTER DATA</small>
+              <h3 id="detailPanelTitle">简介</h3>
+            </div>
+            <span id="detailPanelType">INTRO</span>
+          </div>
+          <div class="detail-reading-body" id="detailPanelBody"></div>
+          <div class="detail-reading-fade" aria-hidden="true"></div>
+        </section>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<div class="save-sheet" id="saveSheet" aria-hidden="true" inert>
+  <div class="save-sheet-backdrop" data-close-save></div>
+  <section class="save-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="saveSheetTitle">
+    <div class="save-sheet-head">
+      <div>
+        <small>CHARACTER CARD EXPORT</small>
+        <h3 id="saveSheetTitle">保存角色卡</h3>
+        <p>PNG 卡片可用于 TAVO 的图片角色卡导入。</p>
+      </div>
+      <button class="save-sheet-close" id="saveSheetClose" type="button" aria-label="关闭保存面板">×</button>
+    </div>
+
+    <div class="save-sheet-preview">
+      <img id="saveSheetImage" alt="角色卡 PNG 预览">
+      <div class="save-preview-meta">
+        <b id="savePreviewName">角色名</b>
+        <span id="savePreviewIdentity">角色身份</span>
+      </div>
+    </div>
+
+    <div class="save-sheet-actions">
+      <button class="save-sheet-choice save-sheet-photo" id="saveSheetPhoto" type="button">
+        <span class="save-choice-mark">▣</span>
+        <span class="save-choice-copy">
+          <b>保存到相册</b>
+          <small>PHOTO LIBRARY · SYSTEM MENU</small>
+        </span>
+        <i>↗</i>
+      </button>
+
+      <a class="save-sheet-choice save-sheet-file" id="saveSheetLink" download="character-card.png">
+        <span class="save-choice-mark">↓</span>
+        <span class="save-choice-copy">
+          <b>以文件形式保存</b>
+          <small>PNG FILE · KEEP CHARACTER CARD DATA</small>
+        </span>
+        <i>⇩</i>
+      </a>
+
+      <p class="save-sheet-note" id="saveSheetNote">
+        保存到相册由系统菜单处理；部分相册可能重新处理图片。需要保留角色卡数据用于导入时，请使用“以文件形式保存”。
+      </p>
+    </div>
+  </section>
+</div>
+
+<script src="assets/js/app.js" defer></script>
+<script src="assets/js/motion.js" defer></script>
+</body>
+</html>
