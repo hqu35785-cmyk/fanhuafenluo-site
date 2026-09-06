@@ -5,15 +5,15 @@
       "id": "fanhuafenluo",
       "name": "繁花·纷落",
       "english": "FANHUA · FENLUO",
-      "avatar": "assets/authors/fanhuafenluo-mark.webp",
+      "avatar": "assets/authors/fanhuafenluo-avatar.webp",
       "pinnedCount": 0,
       "works": []
     },
     {
       "id": "public",
       "name": "公开",
-      "english": "PUBLIC",
-      "avatar": "assets/authors/public-mark.webp",
+      "english": "PUBLIC · CHARACTER ARCHIVE",
+      "avatar": "assets/authors/public.webp",
       "pinnedCount": 0,
       "works": []
     }

@@ -319,6 +319,7 @@ test("recognizes only exact GitHub HTTPS, SSH URL, and SCP repository identities
   const expected = "hqu35785-cmyk/fanhuafenluo-site";
   assert.equal(EXPECTED_REPOSITORY, expected);
   assert.equal(DEFAULT_SITE_URL, "https://hqu35785-cmyk.github.io/fanhuafenluo-site/");
+  assert.equal(MIGRATION_REASON, "新站远端尚未具备发布所需结构");
   assert.equal(repositorySlugFromRemote("https://github.com/hqu35785-cmyk/fanhuafenluo-site.git"), expected);
   assert.equal(repositorySlugFromRemote("ssh://git@github.com/hqu35785-cmyk/fanhuafenluo-site.git"), expected);
   assert.equal(repositorySlugFromRemote("git@github.com:hqu35785-cmyk/fanhuafenluo-site.git"), expected);
