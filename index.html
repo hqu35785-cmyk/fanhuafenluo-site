@@ -22,14 +22,15 @@
 <link rel="stylesheet" href="assets/css/site.css">
 <link rel="stylesheet" href="assets/css/motion.css">
 </head>
-<body class="motion-rich">
+<body class="motion-rich" data-section="fanhuafenluo">
     <header class="site-header">
       <div class="wrap author-header-row">
         <button
           class="author-avatar-shell"
           id="headerAuthorCycle"
           type="button"
-          aria-label="切换下一位作者"
+          aria-label="切换下一个分区"
+          title="点击头像切换分区"
         >
           <img
             id="headerAuthorAvatar"
@@ -39,6 +40,7 @@
             width="48"
             height="48"
           >
+          <span class="avatar-switch-hint" aria-hidden="true">↻</span>
         </button>
 
         <div class="author-primary">
@@ -51,7 +53,7 @@
         </div>
 
         <div class="archive-count">
-          <span>ARCHIVE</span>
+          <span>收录作品</span>
           <b id="headerArchiveCount">—</b>
         </div>
       </div>
@@ -60,8 +62,8 @@
     <main class="archive-main">
       <div class="toolbar">
         <div class="filters author-filters" aria-label="作者分区">
-          <button class="filter author-filter active" type="button" data-author="fanhuafenluo" aria-pressed="true">繁花·纷落</button>
-          <button class="filter author-filter" type="button" data-author="public" aria-pressed="false">公开</button>
+          <button class="filter author-filter active" type="button" data-author="fanhuafenluo" aria-pressed="true"><span class="filter-index" aria-hidden="true">01</span>繁花·纷落</button>
+          <button class="filter author-filter" type="button" data-author="public" aria-pressed="false"><span class="filter-index" aria-hidden="true">02</span>公开</button>
         </div>
         <div class="toolbar-status" id="status" aria-live="polite">
           <i></i><span>WAITING</span>
@@ -118,12 +120,19 @@
         aria-busy="true"
       >
         <div class="archive-empty" id="archiveEmptyState" role="status" aria-live="polite" hidden>
-          <span class="archive-empty-index" aria-hidden="true">00</span>
-          <div class="archive-empty-mark" aria-hidden="true"><i></i></div>
+          <span class="archive-empty-index" aria-hidden="true">PROLOGUE / 序章</span>
+          <div class="archive-empty-mark" aria-hidden="true">
+            <span class="bloom-petal"></span><span class="bloom-petal"></span>
+            <span class="bloom-petal"></span><span class="bloom-petal"></span>
+            <span class="bloom-petal"></span><span class="bloom-petal"></span>
+            <span class="bloom-petal"></span><span class="bloom-petal"></span>
+            <i></i><small>LET THE NEXT STORY BLOOM</small>
+          </div>
           <div class="archive-empty-copy">
-            <small>ARCHIVE · AWAITING FIRST ENTRY</small>
+            <small><span></span>A PLACE FOR STORIES</small>
             <h2>故事尚未开始</h2>
             <p>这里暂时没有作品，新的故事会在准备好后出现</p>
+            <div class="empty-footnote"><span></span>留一处空白，等一个故事。</div>
           </div>
         </div>
       </section>
@@ -136,7 +145,7 @@
     </main>
 
     <footer>
-      <div class="wrap"><span>© 2026 繁花·纷落</span><span>UNIFIED CARD LAYOUT</span></div>
+      <div class="wrap"><span>© 2026 繁花·纷落</span><span>让故事，在此生长</span></div>
     </footer>
 <div class="archive-modal" id="archiveModal" aria-hidden="true" inert>
   <div class="archive-modal-backdrop" data-close-archive></div>

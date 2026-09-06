@@ -409,6 +409,7 @@ function setAuthorControlsDisabled(disabled){
 function paintAuthorHeader(authorId){
   const meta=authorSections[authorId];
 
+  body.dataset.section=authorId;
   headerAuthorName.textContent=meta.name;
   headerAuthorEnglish.textContent=meta.english;
   headerArchiveCount.textContent=String(meta.count);
@@ -557,6 +558,7 @@ function setAuthor(authorId){
   const swapDelay=prefersReducedMotion.matches?0:235;
   window.setTimeout(()=>{
     activeAuthorId=authorId;
+    body.dataset.section=authorId;
     headerAuthorName.textContent=meta.name;
     headerAuthorEnglish.textContent=meta.english;
     headerArchiveCount.textContent=String(meta.count);

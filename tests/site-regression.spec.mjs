@@ -202,6 +202,8 @@ async function selectSection(page, section) {
   const button = page.locator(`.author-filter[data-author="${section.id}"]`);
   await button.click();
   await expect(button).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("body")).toHaveAttribute("data-section", section.id);
+  await expectActiveSectionState(page, section.id);
   await expect(page.locator("#headerAuthorName")).toHaveText(section.name);
   await expect(page.locator("#headerArchiveCount")).toHaveText(String(section.works.length));
   await expect(page.locator("#archiveGallery")).not.toHaveClass(/author-switch-(?:in|out)/);
@@ -210,8 +212,33 @@ async function selectSection(page, section) {
   ).toHaveCount(section.works.length);
 }
 
+async function expectActiveSectionState(page, expectedSectionId, { minimumTouchHeight = false } = {}) {
+  const controls = page.locator(".author-filter");
+  await expect(controls).toHaveCount(2);
+  const states = await controls.evaluateAll((buttons) =>
+    buttons.map((button) => ({
+      active: button.classList.contains("active"),
+      height: button.getBoundingClientRect().height,
+      id: button.dataset.author,
+      pressed: button.getAttribute("aria-pressed") === "true",
+    })),
+  );
+
+  expect(states.filter((state) => state.active).map((state) => state.id)).toEqual([
+    expectedSectionId,
+  ]);
+  expect(states.filter((state) => state.pressed).map((state) => state.id)).toEqual([
+    expectedSectionId,
+  ]);
+  expect(states.every((state) => state.active === state.pressed)).toBe(true);
+  if (minimumTouchHeight) {
+    expect(states.every((state) => state.height >= 44)).toBe(true);
+  }
+}
+
 async function expectSectionAvatar(page, section) {
   const avatar = page.locator("#headerAuthorAvatar");
+  await expect(page.locator("body")).toHaveAttribute("data-section", section.id);
   await expect(avatar).toHaveAttribute("alt", `${section.name}头像`);
   await expect
     .poll(() =>
@@ -303,6 +330,7 @@ test("real section avatars load and the header avatar cycles both sections", asy
   await expect(
     page.locator(`.author-filter[data-author="${secondSection.id}"]`),
   ).toHaveAttribute("aria-pressed", "true");
+  await expectActiveSectionState(page, secondSection.id);
   await expect(page.locator("#headerAuthorName")).toHaveText(secondSection.name);
   await expect(page.locator("#headerArchiveCount")).toHaveText(String(secondSection.works.length));
   await expectSectionAvatar(page, secondSection);
@@ -311,9 +339,37 @@ test("real section avatars load and the header avatar cycles both sections", asy
   await expect(
     page.locator(`.author-filter[data-author="${firstSection.id}"]`),
   ).toHaveAttribute("aria-pressed", "true");
+  await expectActiveSectionState(page, firstSection.id);
   await expect(page.locator("#headerAuthorName")).toHaveText(firstSection.name);
   await expect(page.locator("#headerArchiveCount")).toHaveText(String(firstSection.works.length));
   await expectSectionAvatar(page, firstSection);
+});
+
+test("section controls and the empty archive remain usable across supported widths", async ({
+  page,
+}) => {
+  if (!productionIsEmpty) await installEmptyFixture(page);
+  const [firstSection, secondSection] = emptyCatalog.sections;
+
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: width <= 390 ? 844 : 900 });
+    await page.goto("./", { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#archiveGallery")).toHaveAttribute("aria-busy", "false");
+    await expect(page.locator("#archiveEmptyState")).toBeVisible();
+
+    await expectActiveSectionState(page, firstSection.id, { minimumTouchHeight: true });
+    await expectSectionAvatar(page, firstSection);
+    await selectSection(page, secondSection);
+    await expectActiveSectionState(page, secondSection.id, { minimumTouchHeight: true });
+    await expectSectionAvatar(page, secondSection);
+
+    const fitsViewport = await page.evaluate(
+      () =>
+        Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) <=
+        window.innerWidth + 1,
+    );
+    expect(fitsViewport, `horizontal overflow at ${width}px`).toBe(true);
+  }
 });
 
 test("the Pages artifact and every public repository target point at fanhuafenluo-site", async ({
@@ -470,6 +526,13 @@ test.describe("reduced motion", () => {
     await openProductionSite(page);
     expect(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
     if (productionIsEmpty) await expect(page.locator("#archiveEmptyState")).toBeVisible();
+    const [firstSection, secondSection] = productionSections;
+    await selectSection(page, secondSection);
+    await expectSectionAvatar(page, secondSection);
+    await page.locator("#headerAuthorCycle").click();
+    await expectActiveSectionState(page, firstSection.id);
+    await expect(page.locator("#headerAuthorName")).toHaveText(firstSection.name);
+    await expectSectionAvatar(page, firstSection);
 
     await installNeutralFixture(page);
     await page.reload({ waitUntil: "domcontentloaded" });
@@ -493,6 +556,7 @@ test.describe("reduced motion", () => {
 });
 
 test("retry recovers from a catalog failure into the real empty state", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 700 });
   let catalogRequests = 0;
   await page.route("**/*", async (route) => {
     const pathname = new URL(route.request().url()).pathname;
@@ -516,6 +580,12 @@ test("retry recovers from a catalog failure into the real empty state", async ({
   await expect(page.locator("#statusRetry")).toBeVisible();
   await expect(page.locator("#status")).toHaveClass(/\bis-error\b/);
   await expect(page.locator("#archiveEmptyState")).toBeHidden();
+  expect(await page.evaluate(
+    () =>
+      Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) <=
+      window.innerWidth + 1,
+  )).toBe(true);
+  expect((await page.locator("#statusRetry").boundingBox()).height).toBeGreaterThanOrEqual(44);
   await page.locator("#statusRetry").click();
 
   await expect(page.locator("#archiveGallery")).toHaveAttribute("aria-busy", "false");
