@@ -17,7 +17,7 @@ const galleryEl=document.querySelector('.gallery');
 const authorOrder=['fanhuafenluo','public'];
 const archiveGallery=document.getElementById('archiveGallery');
 const archiveEmptyState=document.getElementById('archiveEmptyState');
-const headerAuthorCycle=document.getElementById('headerAuthorCycle');
+
 
 const SOURCE_BASE=document.baseURI;
 const ARCHIVE_COMMIT='__ARCHIVE_COMMIT__';
@@ -403,7 +403,6 @@ function setAuthorControlsDisabled(disabled){
     button.disabled=disabled;
   });
 
-  headerAuthorCycle.disabled=disabled;
 }
 
 function paintAuthorHeader(authorId){
@@ -491,16 +490,6 @@ async function loadCatalog(){
 
 statusRetry.addEventListener('click',loadCatalog);
 
-headerAuthorCycle.addEventListener('click',()=>{
-  if(!catalogState.catalog) return;
-
-  const current=authorOrder.indexOf(activeAuthorId);
-  const next=authorOrder[
-    (current+1)%authorOrder.length
-  ];
-
-  setAuthor(next);
-});
 
 function setAuthor(authorId){
   if(!catalogState.catalog?.[authorId]) return;

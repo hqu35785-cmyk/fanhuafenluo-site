@@ -312,7 +312,7 @@ test("an empty catalog renders both zero-work sections without fake cards", asyn
   expect(errorCount()).toBe(0);
 });
 
-test("real section avatars load and the header avatar cycles both sections", async ({ page }) => {
+test("real section avatars load and the 01/02 filters switch both sections", async ({ page }) => {
   expect(productionSections.map((section) => section.avatar)).toEqual([
     "assets/authors/fanhuafenluo-avatar.webp",
     "assets/authors/public.webp",
@@ -326,23 +326,8 @@ test("real section avatars load and the header avatar cycles both sections", asy
 
   const [firstSection, secondSection] = productionSections;
   await selectSection(page, firstSection);
-  await page.locator("#headerAuthorCycle").click();
-  await expect(
-    page.locator(`.author-filter[data-author="${secondSection.id}"]`),
-  ).toHaveAttribute("aria-pressed", "true");
-  await expectActiveSectionState(page, secondSection.id);
-  await expect(page.locator("#headerAuthorName")).toHaveText(secondSection.name);
-  await expect(page.locator("#headerArchiveCount")).toHaveText(String(secondSection.works.length));
-  await expectSectionAvatar(page, secondSection);
-
-  await page.locator("#headerAuthorCycle").click();
-  await expect(
-    page.locator(`.author-filter[data-author="${firstSection.id}"]`),
-  ).toHaveAttribute("aria-pressed", "true");
-  await expectActiveSectionState(page, firstSection.id);
-  await expect(page.locator("#headerAuthorName")).toHaveText(firstSection.name);
-  await expect(page.locator("#headerArchiveCount")).toHaveText(String(firstSection.works.length));
-  await expectSectionAvatar(page, firstSection);
+  await selectSection(page, secondSection);
+  await selectSection(page, firstSection);
 });
 
 test("section controls and the empty archive remain usable across supported widths", async ({
@@ -529,7 +514,7 @@ test.describe("reduced motion", () => {
     const [firstSection, secondSection] = productionSections;
     await selectSection(page, secondSection);
     await expectSectionAvatar(page, secondSection);
-    await page.locator("#headerAuthorCycle").click();
+    await selectSection(page, firstSection);
     await expectActiveSectionState(page, firstSection.id);
     await expect(page.locator("#headerAuthorName")).toHaveText(firstSection.name);
     await expectSectionAvatar(page, firstSection);
