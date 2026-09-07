@@ -9,6 +9,23 @@
       "pinnedCount": 0,
       "works": [
         {
+          "name": "素玉",
+          "alias": "CARD · 43CD900D",
+          "collectionLabel": "IMPORTED ROLE CARD",
+          "image": "assets/cards/43cd900d3518c46d6dee.png",
+          "preview": "assets/previews/cards/43cd900d3518c46d6dee.webp",
+          "previewPosition": "50% 8%",
+          "role": "",
+          "tags": [],
+          "cardLabel": "43CD900D",
+          "creator": "未署名",
+          "sensitive": true,
+          "sensitiveSetting": false,
+          "sensitiveLabel": "敏感卡面",
+          "sensitiveSettingLabel": "敏感设定",
+          "_detailKey": "assets/cards/43cd900d3518c46d6dee.png"
+        },
+        {
           "name": "顾清瑶",
           "alias": "TAVO · 146D",
           "collectionLabel": "TAVO ROLE CARD",
