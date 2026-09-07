@@ -381,6 +381,7 @@ async function startServer({ repoPath, stateRoot }) {
       process.execPath,
       [SERVER_PATH, '--state-dir', stateRoot, '--repo', repoPath],
       {
+        cwd: repoPath,
         detached: true,
         stdio: ['ignore', logHandle.fd, logHandle.fd],
         windowsHide: true,

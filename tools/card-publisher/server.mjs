@@ -310,30 +310,68 @@ export async function createPublisherServer(config = {}) {
     ready: false,
     reason: "正在检查远端发布环境…",
     checking: true,
+    code: "CHECKING",
+    checkedAt: null,
+    mode: "source",
   };
   let readinessPromise = null;
+  let queuedForcedReadiness = null;
+  let readinessCheckedAt = 0;
+  const configuredRefreshInterval = Number(config.readinessRefreshIntervalMs ?? 15_000);
+  const readinessRefreshIntervalMs = Number.isFinite(configuredRefreshInterval) && configuredRefreshInterval >= 0
+    ? configuredRefreshInterval
+    : 15_000;
   let importQueue = Promise.resolve();
 
-  const refreshReadiness = ({ force = false } = {}) => {
-    if (readinessPromise) return readinessPromise;
+  const startReadinessRefresh = ({ force = false } = {}) => {
     readiness = { ...readiness, checking: true };
-    readinessPromise = Promise.resolve(gitPublisher.getReadiness({ force }))
+    const operation = Promise.resolve()
+      .then(() => gitPublisher.getReadiness({ force }))
       .then((value) => {
+        const checkedAt = nowIso();
+        readinessCheckedAt = Date.now();
         readiness = {
           ready: Boolean(value?.ready),
           reason: value?.reason || (value?.ready ? "可以发布" : "发布环境未就绪"),
           checking: false,
+          code: value?.code || (value?.ready ? "READY" : "READINESS_FAILED"),
+          checkedAt,
+          mode: value?.mode || "source",
         };
         return readiness;
       })
       .catch(() => {
-        readiness = { ready: false, reason: "暂时无法检查远端发布环境", checking: false };
+        const checkedAt = nowIso();
+        readinessCheckedAt = Date.now();
+        readiness = {
+          ready: false,
+          reason: "暂时无法检查新站远端发布环境；当前不会推送任何内容。",
+          checking: false,
+          code: "READINESS_CHECK_FAILED",
+          checkedAt,
+          mode: readiness.mode || "source",
+        };
         return readiness;
-      })
-      .finally(() => {
-        readinessPromise = null;
       });
-    return readinessPromise;
+    readinessPromise = operation;
+    void operation.then(() => {
+      if (readinessPromise === operation) readinessPromise = null;
+    });
+    return operation;
+  };
+
+  const refreshReadiness = ({ force = false } = {}) => {
+    if (!readinessPromise) return startReadinessRefresh({ force });
+    if (!force) return readinessPromise;
+    if (!queuedForcedReadiness) {
+      const active = readinessPromise;
+      queuedForcedReadiness = active
+        .then(() => startReadinessRefresh({ force: true }))
+        .finally(() => {
+          queuedForcedReadiness = null;
+        });
+    }
+    return queuedForcedReadiness;
   };
 
   function draftDirectory(id) {
@@ -464,12 +502,23 @@ export async function createPublisherServer(config = {}) {
   async function handleApi(request, response, url) {
     assertAuthorized(request);
     if (request.method === "GET" && url.pathname === "/api/status") {
-      void refreshReadiness({ force: url.searchParams.get("refresh") === "1" });
+      const force = url.searchParams.get("refresh") === "1";
+      if (force) {
+        await refreshReadiness({ force: true });
+      } else if (
+        !readinessPromise &&
+        Date.now() - readinessCheckedAt >= readinessRefreshIntervalMs
+      ) {
+        void refreshReadiness();
+      }
       const job = await gitPublisher.getActiveJob();
       sendJson(response, 200, {
         ready: readiness.ready,
         reason: readiness.reason,
         checking: readiness.checking,
+        code: readiness.code,
+        checkedAt: readiness.checkedAt,
+        mode: readiness.mode,
         repository,
         siteUrl: gitPublisher.siteUrl,
         ...(job ? { job } : {}),
@@ -582,8 +631,14 @@ export async function createPublisherServer(config = {}) {
       if (!validation.canPublish) {
         throw apiError(422, validation.code, validation.summary);
       }
-      if (!readiness.ready) {
-        throw apiError(409, "NOT_READY", readiness.reason || "发布环境尚未就绪");
+      if (readiness.checking || !readiness.ready) {
+        throw apiError(
+          409,
+          "NOT_READY",
+          readiness.checking
+            ? "正在检查新站远端发布环境，请稍候再发布"
+            : readiness.reason || "发布环境尚未就绪",
+        );
       }
       const updated = {
         ...draft,

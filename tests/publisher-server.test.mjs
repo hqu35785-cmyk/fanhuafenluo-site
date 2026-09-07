@@ -30,6 +30,15 @@ function deferred() {
   return { promise, resolve, reject };
 }
 
+async function waitFor(predicate, message, timeoutMs = 2_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (predicate()) return;
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+  throw new Error(message);
+}
+
 function fakeInspection(buffer, filename) {
   const sha256 = crypto.createHash("sha256").update(buffer).digest("hex");
   return {
@@ -141,6 +150,9 @@ async function startFixture(t, options = {}) {
     denyHashes: options.denyHashes || [],
     inspectCard,
     gitPublisher: git.fake,
+    ...(options.readinessRefreshIntervalMs === undefined
+      ? {}
+      : { readinessRefreshIntervalMs: options.readinessRefreshIntervalMs }),
     ...(options.publicRoot ? { publicRoot: options.publicRoot } : {}),
   });
   const runtime = await app.listen(0);
@@ -238,11 +250,80 @@ test("status responds immediately with the repository realpath while readiness i
   assert.equal(response.status, 200);
   assert.equal(response.json.ready, false);
   assert.equal(response.json.checking, true);
+  assert.equal(response.json.code, "CHECKING");
+  assert.equal(response.json.checkedAt, null);
+  assert.equal(response.json.mode, "source");
   assert.equal(response.json.repository, await fs.realpath(fixture.repository));
   assert.equal(response.json.siteUrl, SITE_URL);
   assert.equal(git.calls.active, 1);
   readiness.resolve({ ready: true, reason: "可以发布" });
   await fixture.app.refreshReadiness();
+  const settled = await request(fixture.runtime);
+  assert.equal(settled.json.ready, true);
+  assert.equal(settled.json.checking, false);
+  assert.equal(settled.json.code, "READY");
+  assert.match(settled.json.checkedAt, /^\d{4}-\d{2}-\d{2}T/);
+  assert.equal(git.calls.readiness.length, 1, "a fresh snapshot must not start a redundant probe");
+});
+
+test("a forced refresh is queued behind an active probe instead of returning its stale result", async (t) => {
+  const first = deferred();
+  const second = deferred();
+  const git = makeFakeGit({
+    getReadiness: async (options) => {
+      git.calls.readiness.push(options);
+      return git.calls.readiness.length === 1 ? first.promise : second.promise;
+    },
+  });
+  const fixture = await startFixture(t, { git });
+  const forced = fixture.app.refreshReadiness({ force: true });
+
+  first.resolve({ ready: false, reason: "旧失败快照", code: "REMOTE_UNAVAILABLE" });
+  await waitFor(
+    () => git.calls.readiness.length === 2,
+    "the forced refresh was not queued after the active probe",
+  );
+  assert.equal(fixture.app.readiness.checking, true);
+  second.resolve({ ready: true, reason: "可以发布", code: "READY", mode: "source" });
+
+  const result = await forced;
+  assert.equal(result.ready, true);
+  assert.equal(result.reason, "可以发布");
+  assert.equal(result.checking, false);
+  assert.equal(git.calls.readiness[1].force, true);
+});
+
+test("the explicit status refresh waits and returns the completed fresh snapshot", async (t) => {
+  const fresh = deferred();
+  const git = makeFakeGit({
+    getReadiness: async (options) => {
+      git.calls.readiness.push(options);
+      if (git.calls.readiness.length === 1) {
+        return { ready: false, reason: "旧失败快照", code: "REMOTE_UNAVAILABLE" };
+      }
+      return fresh.promise;
+    },
+  });
+  const fixture = await startFixture(t, { git });
+  await waitFor(() => !fixture.app.readiness.checking, "initial readiness did not settle");
+
+  let responseSettled = false;
+  const responsePromise = request(fixture.runtime, { pathname: "/api/status?refresh=1" })
+    .then((response) => {
+      responseSettled = true;
+      return response;
+    });
+  await waitFor(() => git.calls.readiness.length === 2, "forced readiness did not start");
+  assert.equal(responseSettled, false, "the endpoint returned the stale snapshot before the check completed");
+
+  fresh.resolve({ ready: true, reason: "可以发布", code: "READY", mode: "source" });
+  const response = await responsePromise;
+  assert.equal(response.status, 200);
+  assert.equal(response.json.ready, true);
+  assert.equal(response.json.checking, false);
+  assert.equal(response.json.reason, "可以发布");
+  assert.equal(response.json.code, "READY");
+  assert.equal(response.json.mode, "source");
 });
 
 test("API requests require the bearer token and exact loopback Host, Origin, and fetch site", async (t) => {
@@ -393,6 +474,37 @@ test("prepare records invalid drafts without publishing, while publish enforces 
     git.calls.publish[0].draft.cardPath,
     path.join(fixture.stateDirectory, "drafts", draft.id, "card.png"),
   );
+});
+
+test("publish remains blocked while a fresh readiness check is in flight", async (t) => {
+  const recheck = deferred();
+  const git = makeFakeGit({
+    getReadiness: async (options) => {
+      git.calls.readiness.push(options);
+      if (git.calls.readiness.length === 1) {
+        return { ready: true, reason: "可以发布", code: "READY", mode: "source" };
+      }
+      return recheck.promise;
+    },
+  });
+  const fixture = await startFixture(t, { git });
+  await waitFor(() => !fixture.app.readiness.checking, "initial readiness did not settle");
+  const draft = await importDraft(fixture);
+
+  const checking = fixture.app.refreshReadiness({ force: true });
+  await waitFor(() => fixture.app.readiness.checking, "forced readiness did not start");
+  const blocked = await request(fixture.runtime, {
+    pathname: `/api/drafts/${draft.id}/publish`,
+    method: "POST",
+    body: { section: "public", intro: VALID_INTRO },
+  });
+  assert.equal(blocked.status, 409);
+  assert.equal(blocked.json.code, "NOT_READY");
+  assert.match(blocked.json.error, /正在检查新站远端发布环境/);
+  assert.equal(git.calls.publish.length, 0);
+
+  recheck.resolve({ ready: true, reason: "可以发布", code: "READY", mode: "source" });
+  await checking;
 });
 
 test("import-path rejects relative paths and symbolic links before inspection", async (t) => {

@@ -504,6 +504,10 @@ textarea:focus {
   margin:11px 0 0
 }
 
+.publish-hint.blocked {
+  color:#d7a7b5
+}
+
 .notice {
   padding:13px 16px;
   margin:0 0 18px;

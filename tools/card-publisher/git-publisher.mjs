@@ -9,6 +9,12 @@ import { addRoleCard as defaultAddRoleCard } from "../../scripts/lib/card-import
 export const EXPECTED_REPOSITORY = "hqu35785-cmyk/fanhuafenluo-site";
 export const DEFAULT_SITE_URL = "https://hqu35785-cmyk.github.io/fanhuafenluo-site/";
 export const MIGRATION_REASON = "新站远端尚未具备发布所需结构";
+export const REMOTE_UNAVAILABLE_REASON = "暂时无法读取新站远端 main；请确认 Git 已安装、网络与 GitHub 登录可用，然后重新检查。当前不会推送任何内容。";
+export const READINESS_FAILURE_REASON = "暂时无法检查新站远端发布环境；请确认启动路径与本机 Git 环境，然后重新检查。当前不会推送任何内容。";
+export const GIT_NONINTERACTIVE_ENV = Object.freeze({
+  GIT_TERMINAL_PROMPT: "0",
+  GCM_INTERACTIVE: "never",
+});
 
 const SECTION_IDS = new Set(["fanhuafenluo", "public"]);
 const REUSABLE_JOB_STATES = new Set([
@@ -126,13 +132,68 @@ function publicFailure(error) {
     MIGRATION_REQUIRED: MIGRATION_REASON,
     PUBLISH_BUSY: "另一项发布仍在执行，请稍后重试。",
     REMOTE_ADVANCED: "远端 main 在检查期间发生了变化，请重新发布草稿。",
-    REMOTE_MISMATCH: "远端仓库不是指定的繁花纷落仓库，已禁止发布。",
+    REMOTE_MISMATCH: "远端仓库不是指定的新站仓库，已禁止发布。",
+    REMOTE_UNAVAILABLE: "暂时无法访问新站远端 main；草稿已保留，请确认 Git、网络与 GitHub 登录后重试。",
     SHA256_MISMATCH: "草稿 PNG 在检查后发生变化，请重新拖入。",
   };
   return messages[error?.code] || "发布失败；草稿已保留，可在确认环境后重试。";
 }
 
+function publicReadinessFailure(error) {
+  if (error?.code === "MIGRATION_REQUIRED" || error?.code === "INCOMPLETE_REPOSITORY") {
+    return MIGRATION_REASON;
+  }
+  if (error?.code === "REMOTE_UNAVAILABLE") return REMOTE_UNAVAILABLE_REASON;
+  if (error?.code === "REMOTE_MISMATCH") return publicFailure(error);
+  return READINESS_FAILURE_REASON;
+}
+
+function safeReadinessCode(error) {
+  if (error?.code === "MIGRATION_REQUIRED" || error?.code === "INCOMPLETE_REPOSITORY") {
+    return "MIGRATION_REQUIRED";
+  }
+  if (error?.code === "REMOTE_MISMATCH" || error?.code === "REMOTE_UNAVAILABLE") {
+    return error.code;
+  }
+  return "READINESS_FAILED";
+}
+
+function environmentValue(environment, name) {
+  const target = name.toLowerCase();
+  const entry = Object.entries(environment).find(([key]) => key.toLowerCase() === target);
+  return entry?.[1] || "";
+}
+
+export function resolveGitExecutable(environment = process.env) {
+  if (process.platform !== "win32") return "git";
+  const pathValue = environmentValue(environment, "PATH");
+  for (const rawEntry of pathValue.split(path.delimiter)) {
+    const directory = rawEntry.trim().replace(/^"|"$/g, "");
+    if (!directory || !path.isAbsolute(directory)) continue;
+    const candidate = path.join(directory, "git.exe");
+    if (fsSync.existsSync(candidate)) return candidate;
+  }
+
+  const roots = [
+    environmentValue(environment, "ProgramFiles"),
+    environmentValue(environment, "ProgramFiles(x86)"),
+  ].filter(Boolean);
+  const candidates = [
+    ...roots.map((root) => path.join(root, "Git", "cmd", "git.exe")),
+    environmentValue(environment, "LOCALAPPDATA")
+      ? path.join(environmentValue(environment, "LOCALAPPDATA"), "Programs", "Git", "cmd", "git.exe")
+      : null,
+    environmentValue(environment, "USERPROFILE")
+      ? path.join(environmentValue(environment, "USERPROFILE"), "scoop", "apps", "git", "current", "cmd", "git.exe")
+      : null,
+  ].filter(Boolean);
+  return candidates.find((candidate) => fsSync.existsSync(candidate)) || "git";
+}
+
 function commandInvocation(command, args) {
+  if (command === "git") {
+    return { command: resolveGitExecutable(), args };
+  }
   if (process.platform === "win32" && command === "npm") {
     const candidates = [
       path.join(path.dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js"),
@@ -200,7 +261,11 @@ export function defaultCommandRunner(command, args, options = {}) {
     }
     const child = spawn(invocation.command, invocation.args, {
       cwd: options.cwd,
-      env: { ...process.env, ...options.env },
+      env: {
+        ...process.env,
+        ...options.env,
+        ...(command === "git" ? GIT_NONINTERACTIVE_ENV : {}),
+      },
       detached: process.platform !== "win32",
       windowsHide: true,
       stdio: ["ignore", "pipe", "pipe"],
@@ -727,17 +792,18 @@ export class GitPublisher {
       value = {
         ready: true,
         reason: "可以发布",
+        code: "READY",
+        mode: "source",
         repository: this.repositoryLabel,
         siteUrl: this.siteUrl,
       };
     } catch (error) {
-      const code = error?.code;
-      const reason = code === "MIGRATION_REQUIRED" || code === "INCOMPLETE_REPOSITORY"
-        ? MIGRATION_REASON
-        : publicFailure(error);
+      const code = safeReadinessCode(error);
       value = {
         ready: false,
-        reason,
+        reason: publicReadinessFailure(error),
+        code,
+        mode: "source",
         repository: this.repositoryLabel,
         siteUrl: this.siteUrl,
       };
@@ -1055,8 +1121,11 @@ export class GitPublisher {
       await this.#updateJob(jobId, { state: "preparing", message: "正在检查远端并准备发布。" });
       const readiness = await this.getReadiness({ force: true });
       if (!readiness.ready) {
+        const code = readiness.code === "MIGRATION_REQUIRED"
+          ? "MIGRATION_REQUIRED"
+          : readiness.code === "REMOTE_MISMATCH" ? "REMOTE_MISMATCH" : "REMOTE_UNAVAILABLE";
         throw publisherError(
-          readiness.reason === MIGRATION_REASON ? "MIGRATION_REQUIRED" : "REMOTE_UNAVAILABLE",
+          code,
           readiness.reason,
         );
       }

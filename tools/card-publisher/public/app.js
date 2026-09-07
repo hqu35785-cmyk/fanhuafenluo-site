@@ -12,7 +12,8 @@ if (token) storage.set("token", token);
 const initialSection = fragment.get("section") || storage.get("section");
 const initialDraft = fragment.get("draft") || storage.get("draft");
 history.replaceState(null, "", location.pathname);
-const state = { section: sections[initialSection] ? initialSection : "fanhuafenluo", draft: null, ready: false, busy: false, job: null, previewUrl: null, pollTimer: null, readinessTimer: null, jobRequest: false, pollFailures: 0 };
+const state = { section: sections[initialSection] ? initialSection : "fanhuafenluo", draft: null, ready: false, checking: true, readinessReason: "正在检查新站远端发布环境…", busy: false, job: null, previewUrl: null, pollTimer: null, readinessTimer: null, statusRequest: false, jobRequest: false, pollFailures: 0 };
+const READINESS_POLL_MS = 1500;
 
 function notify(message, success = false) {
   $("notice").textContent = message;
@@ -44,7 +45,8 @@ function render() {
   storage.set("section", state.section);
   const count = Array.from($("intro").value.replace(/\s/g, "")).length;
   const valid = count >= 120 && count <= 180;
-  const locked = state.busy || isActiveJob(state.job);
+  const activeJob = isActiveJob(state.job);
+  const locked = state.busy || activeJob;
   for (const [id] of Object.entries(sections)) {
     const button = $(`section-${id}`);
     button.classList.toggle("active", state.section === id);
@@ -61,27 +63,63 @@ function render() {
   $("download-prompt").disabled = !state.draft || state.busy;
   $("prepare-button").disabled = !state.draft || !valid || locked;
   const alreadyPublished = Boolean(state.job && state.job.state !== "failed" && state.job.state !== "cancelled");
-  $("publish-button").disabled = !state.draft || !valid || !state.ready || locked || alreadyPublished;
+  const publishBlocked = !state.draft || !valid || !state.ready || state.checking || locked || alreadyPublished;
+  let publishHint = "发布前会检查最新远端；不会提交你工作区里的其他修改。";
+  if (state.busy) publishHint = "当前操作正在处理，完成前不能再次发布。";
+  else if (activeJob) publishHint = "已有发布任务正在处理；请等待当前任务完成。";
+  else if (alreadyPublished) publishHint = ["pending_deployment", "push_uncertain"].includes(state.job?.state)
+    ? "这项任务仍需确认上线状态；请使用下方“重新检查上线状态”，不会重复推送。"
+    : "这份草稿已有发布结果；如需发布另一张卡，请导入或恢复另一份草稿。";
+  else if (!state.draft) publishHint = "请先导入一张 PNG，或从“继续本地草稿”恢复一份草稿。";
+  else if (!valid) publishHint = count
+    ? `简介当前为 ${count} 个非空白字符；达到 120–180 个字符后才能发布。`
+    : "请先填写 120–180 个非空白字符的独立简介。";
+  else if (state.checking) publishHint = "正在检查新站远端发布环境；检查完成前不会发布。";
+  else if (!state.ready) publishHint = `发布环境未就绪：${state.readinessReason || "请点击上方“重新检查”。"}`;
+  $("publish-button").disabled = publishBlocked;
+  $("publish-button").title = publishBlocked ? publishHint : "";
   $("publish-button").textContent = state.busy ? "处理中…" : `发布到${sections[state.section]} ↗`;
+  $("publish-hint").textContent = publishHint;
+  $("publish-hint").classList.toggle("blocked", publishBlocked);
   $("publish-summary").textContent = state.draft ? `「${state.draft.name}」将加入「${sections[state.section]}」分区，排在已有置顶卡片之后。保留原始 PNG、真实作者信息与角色设定，简介使用右上方的定稿。` : "选择卡片后，会在这里显示发布摘要。";
 }
 
 async function refreshStatus({ force = false } = {}) {
+  clearTimeout(state.readinessTimer);
+  state.readinessTimer = null;
+  if (state.statusRequest) return;
+  state.statusRequest = true;
+  state.checking = true;
   $("refresh-status").disabled = true;
+  $("readiness-title").textContent = force ? "正在重新检查发布环境" : "正在检查发布环境";
+  $("readiness-message").textContent = "正在读取新站远端最新 main；检查完成前不会发布。";
+  render();
   try {
     const status = await api(force ? "/api/status?refresh=1" : "/api/status");
     state.ready = Boolean(status.ready);
+    state.checking = Boolean(status.checking);
+    state.readinessReason = status.reason || (state.ready ? "可以发布" : "发布环境未就绪");
     $("readiness-dot").classList.toggle("ready", state.ready);
-    $("readiness-title").textContent = state.ready ? "发布环境已就绪" : "卡片可先准备 · 发布暂未就绪";
-    $("readiness-message").textContent = status.reason || (state.ready ? "将基于新站远端最新 main 单独创建发布提交，部署确认后再显示成功。" : "新站远端发布结构尚未就绪，当前不会推送任何内容。");
-    clearTimeout(state.readinessTimer);
-    if (!state.ready && (status.checking || status.reason?.includes("正在检查"))) state.readinessTimer = setTimeout(refreshStatus, 2500);
+    $("readiness-title").textContent = state.checking
+      ? "正在检查发布环境"
+      : state.ready ? "发布环境已就绪" : "卡片可先准备 · 发布暂未就绪";
+    $("readiness-message").textContent = state.checking
+      ? "正在读取新站远端最新 main；检查完成前不会发布。"
+      : state.readinessReason;
     if (status.job && !state.job) showJob(status.job);
   } catch (error) {
     state.ready = false;
+    state.checking = false;
+    state.readinessReason = token ? error.message : "请通过桌面的快捷方式打开；直接输入网址没有本地访问凭据。";
+    $("readiness-dot").classList.remove("ready");
     $("readiness-title").textContent = "本地工具未连接";
-    $("readiness-message").textContent = token ? error.message : "请通过桌面的快捷方式打开；直接输入网址没有本地访问凭据。";
-  } finally { $("refresh-status").disabled = false; render(); }
+    $("readiness-message").textContent = state.readinessReason;
+  } finally {
+    state.statusRequest = false;
+    $("refresh-status").disabled = false;
+    render();
+    if (state.checking) state.readinessTimer = setTimeout(refreshStatus, READINESS_POLL_MS);
+  }
 }
 
 async function refreshDrafts() {

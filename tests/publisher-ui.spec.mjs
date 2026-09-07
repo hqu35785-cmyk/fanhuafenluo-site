@@ -54,6 +54,16 @@ function visibleLength(value) {
   return Array.from(String(value).replace(/\s/gu, '')).length;
 }
 
+function deferred() {
+  let resolve;
+  let reject;
+  const promise = new Promise((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, resolve, reject };
+}
+
 function normalizedCopy(value) {
   return String(value).replace(/\s/gu, '');
 }
@@ -82,6 +92,7 @@ async function requestBody(request) {
 const mock = {
   apiCalls: [],
   checkRequests: 0,
+  checking: false,
   importRequest: null,
   jobReads: 0,
   jobTerminalState: 'succeeded',
@@ -89,10 +100,15 @@ const mock = {
   prepareRequests: [],
   publishRequests: 0,
   ready: false,
+  readinessReason: null,
   restoredDraft: null,
+  statusCalls: 0,
+  statusGate: null,
+  statusResponses: [],
   reset() {
     this.apiCalls.length = 0;
     this.checkRequests = 0;
+    this.checking = false;
     this.importRequest = null;
     this.jobReads = 0;
     this.jobTerminalState = 'succeeded';
@@ -100,7 +116,11 @@ const mock = {
     this.prepareRequests.length = 0;
     this.publishRequests = 0;
     this.ready = false;
+    this.readinessReason = null;
     this.restoredDraft = null;
+    this.statusCalls = 0;
+    this.statusGate = null;
+    this.statusResponses.length = 0;
   },
 };
 
@@ -150,11 +170,28 @@ test.beforeAll(async () => {
       }
 
       if (request.method === 'GET' && requestUrl.pathname === '/api/status') {
+        mock.statusCalls += 1;
+        if (mock.statusGate) {
+          const gate = mock.statusGate;
+          mock.statusGate = null;
+          await gate.promise;
+        }
+        const status = mock.statusResponses.length
+          ? mock.statusResponses.shift()
+          : {
+              ready: mock.ready,
+              checking: mock.checking,
+              reason: mock.readinessReason,
+            };
         json(response, 200, {
-          ready: mock.ready,
-          reason: mock.ready
+          ready: Boolean(status.ready),
+          checking: Boolean(status.checking),
+          reason: status.reason || (status.ready
             ? '本地 mock 发布环境可以发布。'
-            : '本地测试发布闸门关闭；可以准备草稿，但不会推送。',
+            : '本地测试发布闸门关闭；可以准备草稿，但不会推送。'),
+          code: status.ready ? 'READY' : 'REMOTE_UNAVAILABLE',
+          checkedAt: new Date().toISOString(),
+          mode: 'source',
           repository: REPOSITORY_ROOT,
         });
         return;
@@ -411,6 +448,8 @@ test('rejects a copied description and never enables publish while the real gate
   await expect(page.locator('#intro-count')).toContainText(`${visibleLength(RAW_DESCRIPTION)} /`);
   await expect(page.locator('#prepare-button')).toBeEnabled();
   await expect(page.locator('#publish-button')).toBeDisabled();
+  await expect(page.locator('#publish-hint')).toContainText('发布环境未就绪');
+  await expect(page.locator('#publish-button')).toHaveAttribute('aria-describedby', 'publish-hint');
   await expect(page.locator('#readiness-title')).toHaveText('卡片可先准备 · 发布暂未就绪');
 
   await page.locator('#prepare-button').click();
@@ -422,6 +461,53 @@ test('rejects a copied description and never enables publish while the real gate
   });
   expect(mock.publishRequests).toBe(0);
   await expect(page.locator('#publish-button')).toBeDisabled();
+});
+
+test('polls every checking snapshot and applies a later failed readiness result', async ({
+  page,
+}) => {
+  mock.statusResponses.push(
+    { ready: true, checking: true, reason: '上次检查可以发布，正在复核。' },
+    { ready: false, checking: false, reason: '暂时无法读取新站远端 main；当前不会推送任何内容。' },
+  );
+  await page.goto(publisherUrl({ section: 'fanhuafenluo', draft: DRAFT.id }), {
+    waitUntil: 'domcontentloaded',
+  });
+  await expect(page.locator('#card-name')).toHaveText(DRAFT.name);
+  await page.locator('#intro').fill(VALID_INTRO);
+
+  await expect(page.locator('#readiness-title')).toHaveText('卡片可先准备 · 发布暂未就绪');
+  await expect(page.locator('#readiness-message')).toContainText('暂时无法读取新站远端 main');
+  await expect(page.locator('#publish-hint')).toContainText('发布环境未就绪');
+  await expect(page.locator('#publish-button')).toBeDisabled();
+  expect(mock.statusCalls).toBeGreaterThanOrEqual(2);
+  expect(mock.publishRequests).toBe(0);
+});
+
+test('manual readiness refresh disables publish until the completed result is visible', async ({
+  page,
+}) => {
+  mock.ready = true;
+  await openDraft(page);
+  await page.locator('#intro').fill(VALID_INTRO);
+  await expect(page.locator('#publish-button')).toBeEnabled();
+
+  const gate = deferred();
+  mock.statusGate = gate;
+  mock.ready = false;
+  mock.readinessReason = '暂时无法读取新站远端 main；当前不会推送任何内容。';
+  await page.locator('#refresh-status').click();
+
+  await expect(page.locator('#publish-button')).toBeDisabled();
+  await expect(page.locator('#publish-hint')).toContainText('正在检查新站远端发布环境');
+  await expect(page.locator('#readiness-title')).toHaveText('正在重新检查发布环境');
+
+  gate.resolve();
+  await expect(page.locator('#readiness-title')).toHaveText('卡片可先准备 · 发布暂未就绪');
+  await expect(page.locator('#readiness-message')).toContainText('暂时无法读取新站远端 main');
+  await expect(page.locator('#publish-hint')).toContainText('发布环境未就绪');
+  await expect(page.locator('#publish-button')).toBeDisabled();
+  expect(mock.publishRequests).toBe(0);
 });
 
 test('saves an independent introduction to either section without pushing', async ({ page }) => {

@@ -10,11 +10,14 @@ import zlib from "node:zlib";
 import {
   DEFAULT_SITE_URL,
   EXPECTED_REPOSITORY,
+  GIT_NONINTERACTIVE_ENV,
   MIGRATION_REASON,
+  REMOTE_UNAVAILABLE_REASON,
   acquirePublisherLock,
   createGitPublisher,
   defaultCommandRunner,
   repositorySlugFromRemote,
+  resolveGitExecutable,
 } from "../tools/card-publisher/git-publisher.mjs";
 import { inspectCard } from "../scripts/lib/card-import.mjs";
 
@@ -336,6 +339,30 @@ test("runs npm through npm-cli.js without a Windows command shell", async () => 
   assert.match(result.stdout.trim(), /^\d+\.\d+\.\d+/);
 });
 
+test("finds an installed Windows Git even when the child PATH is unavailable", {
+  skip: process.platform !== "win32",
+}, async () => {
+  const resolved = resolveGitExecutable({
+    PATH: "",
+    ProgramFiles: process.env.ProgramFiles,
+    "ProgramFiles(x86)": process.env["ProgramFiles(x86)"],
+    LOCALAPPDATA: process.env.LOCALAPPDATA,
+    USERPROFILE: process.env.USERPROFILE,
+  });
+  assert.equal(path.isAbsolute(resolved), true);
+  await fs.access(resolved);
+  const result = await defaultCommandRunner("git", ["--version"], {
+    env: { PATH: "", Path: "" },
+    timeoutMs: 30_000,
+  });
+  assert.equal(result.code, 0, result.stderr);
+  assert.match(result.stdout.trim(), /^git version \d+\.\d+/);
+  assert.deepEqual(GIT_NONINTERACTIVE_ENV, {
+    GIT_TERMINAL_PROMPT: "0",
+    GCM_INTERACTIVE: "never",
+  });
+});
+
 test("a command timeout terminates descendants that inherited the output pipes", async (t) => {
   const temporary = await fs.mkdtemp(path.join(os.tmpdir(), "publisher-runner-timeout-"));
   t.after(async () => fs.rm(temporary, { recursive: true, force: true }));
@@ -430,8 +457,48 @@ test("remote readiness remains gated until the single-repository files exist", a
   const publisher = await publisherFor(fixture);
   const status = await publisher.getReadiness({ force: true });
   assert.deepEqual(
-    { ready: status.ready, reason: status.reason },
-    { ready: false, reason: MIGRATION_REASON },
+    { ready: status.ready, reason: status.reason, code: status.code, mode: status.mode },
+    { ready: false, reason: MIGRATION_REASON, code: "MIGRATION_REQUIRED", mode: "source" },
+  );
+});
+
+test("remote access failures have a readiness-specific reason and a forced check replaces the cached failure", async (t) => {
+  const fixture = await createLocalRemote(t);
+  let failReadinessClone = true;
+  const runner = async (command, args, options) => {
+    if (
+      failReadinessClone &&
+      command === "git" &&
+      args[0] === "clone" &&
+      args.includes("--no-checkout")
+    ) {
+      return { code: 1, stdout: "", stderr: "simulated unavailable remote" };
+    }
+    return defaultCommandRunner(command, args, options);
+  };
+  const publisher = await publisherFor(fixture, {
+    runner,
+    readinessTtlMs: 60_000,
+  });
+
+  const failed = await publisher.getReadiness({ force: true });
+  assert.deepEqual(
+    { ready: failed.ready, reason: failed.reason, code: failed.code, mode: failed.mode },
+    {
+      ready: false,
+      reason: REMOTE_UNAVAILABLE_REASON,
+      code: "REMOTE_UNAVAILABLE",
+      mode: "source",
+    },
+  );
+  assert.equal(failed.reason.includes("草稿已保留"), false);
+  assert.equal((await publisher.getReadiness()).ready, false, "fresh failures may be cached briefly");
+
+  failReadinessClone = false;
+  const recovered = await publisher.getReadiness({ force: true });
+  assert.deepEqual(
+    { ready: recovered.ready, reason: recovered.reason, code: recovered.code, mode: recovered.mode },
+    { ready: true, reason: "可以发布", code: "READY", mode: "source" },
   );
 });
 
